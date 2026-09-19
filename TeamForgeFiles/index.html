@@ -285,7 +285,9 @@
             if (results.candidates && results.candidates.length > 0) {
               const top = results.candidates[0];
               candidateContainer.innerHTML = `
-                <img src="${top.student.avatar}" alt="${top.student.name}" class="w-11 h-11 rounded-xl object-cover ring-2 ring-indigo-500/40">
+                <img src="${top.student.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(top.student.name) + '&background=6366f1&color=fff&bold=true&size=128')}" 
+                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${top.student.name}') + '&background=6366f1&color=fff&bold=true&size=128';"
+                     alt="${top.student.name}" class="w-11 h-11 rounded-xl object-cover ring-2 ring-indigo-500/40">
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between">
                     <span class="text-sm font-bold text-white">${top.student.name}</span>

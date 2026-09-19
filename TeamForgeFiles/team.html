@@ -215,10 +215,12 @@
           <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-3 flex flex-col justify-between">
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-center gap-3">
-                <img src="${s.avatar}" class="w-11 h-11 rounded-xl object-cover ring-2 ${isGuest ? 'ring-amber-500/50' : 'ring-indigo-500/50'}">
+                <img src="${s.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(s.name) + '&background=6366f1&color=fff&bold=true')}" 
+                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${s.name}') + '&background=6366f1&color=fff&bold=true';" 
+                     class="w-11 h-11 rounded-xl object-cover ring-2 ${isGuest ? 'ring-amber-500/50' : 'ring-indigo-500/50'}">
                 <div>
                   <a href="profile.html?id=${s.id}" class="font-bold text-sm text-white hover:text-indigo-400">${s.name}</a>
-                  <div class="text-[11px] text-slate-400">${s.college}</div>
+                  <div class="text-[11px] text-slate-400">${s.college || 'Sri Sairam college of Engineering'}</div>
                 </div>
               </div>
 
@@ -236,7 +238,7 @@
             ${isGuest && item.notes ? `<div class="text-[10px] text-slate-400 italic">"${item.notes}"</div>` : ''}
 
             <div class="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
-              <span class="text-amber-400 font-bold">★ ${s.rating}</span>
+              <span class="text-amber-400 font-bold">★ ${(s.rating !== undefined && s.rating !== null && !isNaN(Number(s.rating))) ? Number(s.rating).toFixed(1) : '5.0'}</span>
               <div class="flex items-center gap-2">
                 <a href="profile.html?id=${s.id}" class="text-slate-400 hover:text-white">Profile</a>
                 ${isOwner && s.id !== currentUser.id ? `
@@ -258,7 +260,9 @@
         reqsList.innerHTML = pendingReqs.map(r => `
           <div class="glass-panel p-3 rounded-xl border border-white/10 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-              <img src="${r.userAvatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + r.userName}" class="w-9 h-9 rounded-lg object-cover">
+              <img src="${r.userAvatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(r.userName || 'Peer') + '&background=6366f1&color=fff&bold=true')}" 
+                   onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${r.userName || 'Peer'}') + '&background=6366f1&color=fff&bold=true';" 
+                   class="w-9 h-9 rounded-lg object-cover">
               <div>
                 <div class="text-xs font-bold text-white">${r.userName} (${r.userRole || 'Student'})</div>
                 <div class="text-[11px] text-slate-400">"${r.message}"</div>

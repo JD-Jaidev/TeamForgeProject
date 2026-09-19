@@ -50,12 +50,15 @@ class TeamForgeUI {
             <!-- Persona Switcher & Profile Dropdown -->
             <div class="relative" id="user-profile-menu-container">
               <button id="user-profile-menu-btn" type="button" class="flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer active:scale-95">
-                <img src="${user.avatar}" alt="${user.name}" class="w-7 h-7 rounded-lg object-cover ring-1 ring-indigo-500/50">
+                <img src="${user.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=6366f1&color=fff&bold=true&size=128')}" 
+                     alt="${user.name}" 
+                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${user.name}') + '&background=6366f1&color=fff&bold=true&size=128';"
+                     class="w-7 h-7 rounded-lg object-cover ring-1 ring-indigo-500/50">
                 <div class="text-left hidden sm:block">
                   <div class="text-xs font-semibold text-white leading-tight">${user.name}</div>
                   <div class="text-[10px] text-indigo-300 font-mono flex items-center gap-1">
-                    <span>⚡ ${user.credits || 0} cr</span>
-                    <span class="text-amber-400 font-bold">★ ${user.rating}</span>
+                    <span>⚡ ${user.credits || 200} cr</span>
+                    <span class="text-amber-400 font-bold">★ ${(user.rating !== undefined && user.rating !== null && !isNaN(Number(user.rating))) ? Number(user.rating).toFixed(1) : '5.0'}</span>
                   </div>
                 </div>
                 <svg id="user-profile-chevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>

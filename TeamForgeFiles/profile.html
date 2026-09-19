@@ -173,13 +173,22 @@
       const currentUser = window.TF_AUTH.getCurrentUser();
       const isSelf = currentUser && currentUser.id === s.id;
 
-      document.getElementById('prof-avatar').src = s.avatar;
+      const avatarSrc = (s.avatar && s.avatar.startsWith('http')) 
+        ? s.avatar 
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=6366f1&color=fff&bold=true&size=128`;
+      const avatarEl = document.getElementById('prof-avatar');
+      avatarEl.src = avatarSrc;
+      avatarEl.onerror = function() {
+        this.onerror = null;
+        this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=6366f1&color=fff&bold=true&size=128`;
+      };
+
       document.getElementById('prof-name').textContent = s.name;
       document.getElementById('prof-role-badge').textContent = s.role;
-      document.getElementById('prof-college').textContent = `${s.college} • ${s.experience}`;
-      document.getElementById('prof-rating').textContent = s.rating;
+      document.getElementById('prof-college').textContent = `${s.college || 'Sri Sairam college of Engineering'} • ${s.experience || 'Intermediate (2 yrs)'}`;
+      document.getElementById('prof-rating').textContent = (s.rating !== undefined && s.rating !== null && !isNaN(Number(s.rating))) ? Number(s.rating).toFixed(1) : '5.0';
       document.getElementById('prof-review-count').textContent = s.reviewCount || 0;
-      document.getElementById('prof-credits').textContent = s.credits || 0;
+      document.getElementById('prof-credits').textContent = s.credits || 200;
       document.getElementById('prof-availability').textContent = s.availability || 'Available';
       document.getElementById('prof-bio').textContent = s.bio;
 

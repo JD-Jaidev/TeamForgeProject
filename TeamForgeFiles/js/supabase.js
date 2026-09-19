@@ -1,7 +1,52 @@
 // Supabase Client Wrapper & Responsive Local Store
 // Handles real Supabase Postgres/Auth/Realtime when configured, and falls back to rich reactive store for 100% functional live experience.
 
-const INITIAL_STUDENTS = [];
+const INITIAL_STUDENTS = [
+  {
+    id: "usr_jaidev_01",
+    name: "Jaidev S",
+    email: "jaidev@example.com",
+    avatar: "https://ui-avatars.com/api/?name=Jaidev+S&background=6366f1&color=fff&bold=true&size=128",
+    college: "Sri Sairam college of Engineering",
+    role: "Full Stack Developer & AI Lead",
+    bio: "Passionate developer building scalable web applications, real-time collaboration platforms, and AI agents.",
+    experience: "Intermediate (2 yrs)",
+    availability: "20 hrs/week",
+    skills: ["Python", "React", "Node.js", "FastAPI", "PyTorch", "UI/UX Design"],
+    domains: ["Full Stack & Web", "Artificial Intelligence", "UI/UX & Frontend"],
+    rating: 5.0,
+    credits: 200,
+    reviewCount: 0,
+    github: "https://github.com",
+    linkedin: "https://linkedin.com",
+    portfolio: "",
+    preferredRoles: ["Full Stack Developer", "AI Engineer"],
+    projects: [],
+    verifiedBadge: true
+  },
+  {
+    id: "usr_bhagavth_01",
+    name: "Bhagavth Kumar G",
+    email: "bhagavth@example.com",
+    avatar: "https://ui-avatars.com/api/?name=Bhagavth+Kumar+G&background=4f46e5&color=fff&bold=true&size=128",
+    college: "Sri Sairam college of Engineering",
+    role: "Full Stack Developer",
+    bio: "Ambition student developer ready to collaborate on innovative projects.",
+    experience: "Intermediate (2 yrs)",
+    availability: "15-20 hrs/week",
+    skills: ["Full Stack", "JavaScript", "Python", "React", "Tailwind", "Node.js", "Docker"],
+    domains: ["Full Stack & Web", "Artificial Intelligence", "Cloud Infrastructure"],
+    rating: 5.0,
+    credits: 200,
+    reviewCount: 0,
+    github: "https://github.com",
+    linkedin: "https://linkedin.com",
+    portfolio: "",
+    preferredRoles: ["Full Stack Developer"],
+    projects: [],
+    verifiedBadge: true
+  }
+];
 
 const INITIAL_TEAMS = [];
 
@@ -79,24 +124,68 @@ class TeamForgeStore {
     this.init();
   }
 
+  normalizeStudent(s) {
+    if (!s || (!s.name && !s.email)) return null;
+    const name = s.name || (s.email ? s.email.split('@')[0] : "Student Builder");
+    const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff&bold=true&size=128`;
+    const avatar = (s.avatar && typeof s.avatar === 'string' && s.avatar.startsWith('http') && !s.avatar.includes('undefined'))
+      ? s.avatar
+      : fallbackAvatar;
+
+    return {
+      id: s.id || ('usr_' + Math.random().toString(36).substr(2, 9)),
+      name: name,
+      email: s.email || `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@example.com`,
+      avatar: avatar,
+      college: s.college || "Sri Sairam college of Engineering",
+      role: s.role || "Full Stack Developer",
+      bio: s.bio || "Ambition student developer ready to collaborate on innovative projects.",
+      experience: s.experience || "Intermediate (2 yrs)",
+      availability: s.availability || "15-20 hrs/week",
+      skills: (Array.isArray(s.skills) && s.skills.length > 0) ? s.skills : ["JavaScript", "Python", "React", "Node.js"],
+      domains: (Array.isArray(s.domains) && s.domains.length > 0) ? s.domains : ["Full Stack & Web", "Artificial Intelligence"],
+      rating: (s.rating !== undefined && s.rating !== null && !isNaN(Number(s.rating))) ? Number(s.rating) : 5.0,
+      credits: (s.credits !== undefined && s.credits !== null && !isNaN(Number(s.credits))) ? Number(s.credits) : 200,
+      reviewCount: (s.reviewCount !== undefined && s.reviewCount !== null && !isNaN(Number(s.reviewCount))) ? Number(s.reviewCount) : 0,
+      github: s.github || "https://github.com",
+      linkedin: s.linkedin || "https://linkedin.com",
+      portfolio: s.portfolio || "",
+      preferredRoles: s.preferredRoles || [s.role || "Developer"],
+      projects: s.projects || [],
+      verifiedBadge: s.verifiedBadge !== undefined ? Boolean(s.verifiedBadge) : true
+    };
+  }
+
   init() {
-    // If students contain old mock users from previous sessions, clear them so user starts from scratch
-    const existingStudents = JSON.parse(localStorage.getItem('tf_students') || '[]');
-    const hasMockStudents = existingStudents.some(s => s.id && s.id.startsWith('usr_alex_01'));
-    if (hasMockStudents) {
-      localStorage.removeItem('tf_students');
-      localStorage.removeItem('tf_teams');
-      localStorage.removeItem('tf_tasks');
-      localStorage.removeItem('tf_messages');
-      localStorage.removeItem('tf_reviews');
-      localStorage.removeItem('tf_opportunities');
-      localStorage.removeItem('tf_notifications');
-      localStorage.removeItem('tf_current_user_id');
+    let existingStudents = [];
+    try {
+      existingStudents = JSON.parse(localStorage.getItem('tf_students') || '[]');
+    } catch(e) {
+      existingStudents = [];
     }
 
-    if (!localStorage.getItem('tf_students')) {
-      localStorage.setItem('tf_students', JSON.stringify(INITIAL_STUDENTS));
-    }
+    // Clean up old mock users
+    existingStudents = existingStudents.filter(s => s && s.id !== 'usr_alex_01');
+
+    // Normalize existing students and repair any broken avatar/rating
+    let mergedStudents = existingStudents.map(s => this.normalizeStudent(s)).filter(Boolean);
+
+    // Ensure INITIAL_STUDENTS exist in the list
+    INITIAL_STUDENTS.forEach(initStudent => {
+      const idx = mergedStudents.findIndex(s => 
+        (s.id && s.id === initStudent.id) || 
+        (s.email && initStudent.email && s.email.toLowerCase() === initStudent.email.toLowerCase()) ||
+        (s.name && initStudent.name && s.name.toLowerCase() === initStudent.name.toLowerCase())
+      );
+      if (idx >= 0) {
+        mergedStudents[idx] = this.normalizeStudent({ ...initStudent, ...mergedStudents[idx] });
+      } else {
+        mergedStudents.push(this.normalizeStudent(initStudent));
+      }
+    });
+
+    localStorage.setItem('tf_students', JSON.stringify(mergedStudents));
+
     if (!localStorage.getItem('tf_teams')) {
       localStorage.setItem('tf_teams', JSON.stringify(INITIAL_TEAMS));
     }
@@ -121,7 +210,8 @@ class TeamForgeStore {
   }
 
   getStudents() {
-    return JSON.parse(localStorage.getItem('tf_students') || '[]');
+    const raw = JSON.parse(localStorage.getItem('tf_students') || '[]');
+    return raw.map(s => this.normalizeStudent(s)).filter(Boolean);
   }
 
   getStudentById(id) {
@@ -130,25 +220,31 @@ class TeamForgeStore {
   }
 
   saveStudent(student) {
+    const normalized = this.normalizeStudent(student);
+    if (!normalized) return student;
+
     const list = this.getStudents();
-    const index = list.findIndex(s => s.id === student.id || (s.email && student.email && s.email.toLowerCase() === student.email.toLowerCase()));
+    const index = list.findIndex(s => s.id === normalized.id || (s.email && normalized.email && s.email.toLowerCase() === normalized.email.toLowerCase()) || (s.name && normalized.name && s.name.toLowerCase() === normalized.name.toLowerCase()));
     if (index >= 0) {
-      list[index] = { ...list[index], ...student };
+      list[index] = { ...list[index], ...normalized };
     } else {
-      list.push(student);
+      list.push(normalized);
     }
     localStorage.setItem('tf_students', JSON.stringify(list));
-    this.broadcastStudentToCloud(student);
-    return student;
+    this.broadcastStudentToCloud(normalized);
+    return normalized;
   }
 
   GLOBAL_REGISTRY_ID = 'ff808181a09d98f701a0ba86f516487b';
 
   async broadcastStudentToCloud(student) {
+    const normalized = this.normalizeStudent(student);
+    if (!normalized) return;
+
     try {
       // 1. Supabase (if configured)
       if (window.TF_CONFIG && window.TF_CONFIG.isSupabaseConfigured()) {
-        await this.saveStudentRemote(student);
+        await this.saveStudentRemote(normalized);
       }
 
       // 2. Global Universal Cloud Peer Relay (for zero-config cross-device visibility)
@@ -157,16 +253,16 @@ class TeamForgeStore {
       if (res.ok) {
         const doc = await res.json();
         if (doc && doc.data && Array.isArray(doc.data.students)) {
-          currentStudents = doc.data.students;
+          currentStudents = doc.data.students.map(s => this.normalizeStudent(s)).filter(Boolean);
         }
       }
 
       // Merge current student
-      const idx = currentStudents.findIndex(s => s.id === student.id || (s.email && student.email && s.email.toLowerCase() === student.email.toLowerCase()));
+      const idx = currentStudents.findIndex(s => s.id === normalized.id || (s.email && normalized.email && s.email.toLowerCase() === normalized.email.toLowerCase()) || (s.name && normalized.name && s.name.toLowerCase() === normalized.name.toLowerCase()));
       if (idx >= 0) {
-        currentStudents[idx] = { ...currentStudents[idx], ...student };
+        currentStudents[idx] = { ...currentStudents[idx], ...normalized };
       } else {
-        currentStudents.push(student);
+        currentStudents.push(normalized);
       }
 
       // Update registry
@@ -234,14 +330,14 @@ class TeamForgeStore {
       if (res.ok) {
         const doc = await res.json();
         if (doc && doc.data && Array.isArray(doc.data.students)) {
-          const cloudStudents = doc.data.students;
+          const cloudStudents = doc.data.students.map(s => this.normalizeStudent(s)).filter(Boolean);
           if (cloudStudents.length > 0) {
             const localStudents = this.getStudents();
             cloudStudents.forEach(cs => {
-              if (!cs || (!cs.name && !cs.email)) return;
+              if (!cs) return;
               const idx = localStudents.findIndex(s => s.id === cs.id || (s.email && cs.email && s.email.toLowerCase() === cs.email.toLowerCase()) || (s.name && cs.name && s.name.toLowerCase() === cs.name.toLowerCase()));
               if (idx >= 0) {
-                localStudents[idx] = { ...localStudents[idx], ...cs };
+                localStudents[idx] = this.normalizeStudent({ ...localStudents[idx], ...cs });
               } else {
                 localStudents.push(cs);
                 syncedCount++;

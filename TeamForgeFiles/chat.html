@@ -291,7 +291,7 @@
 
         return `
           <div class="flex items-start gap-3 ${isMe ? 'justify-end' : 'justify-start'}">
-            ${!isMe ? `<img src="${m.senderAvatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + m.senderName}" class="w-8 h-8 rounded-xl object-cover ring-1 ring-white/10 mt-1">` : ''}
+            ${!isMe ? `<img src="${m.senderAvatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(m.senderName || 'Peer') + '&background=6366f1&color=fff&bold=true')}" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${m.senderName || 'Peer'}') + '&background=6366f1&color=fff&bold=true';" class="w-8 h-8 rounded-xl object-cover ring-1 ring-white/10 mt-1">` : ''}
             
             <div class="max-w-md ${isMe ? 'chat-bubble-me text-white p-3.5' : 'chat-bubble-other text-slate-200 p-3.5'}">
               <div class="flex items-center justify-between gap-3 text-[10px] text-slate-300/80 mb-1">
@@ -301,7 +301,7 @@
               <div class="text-xs sm:text-sm leading-relaxed">${m.content}</div>
             </div>
 
-            ${isMe ? `<img src="${currentUser.avatar}" class="w-8 h-8 rounded-xl object-cover ring-1 ring-indigo-500 mt-1">` : ''}
+            ${isMe ? `<img src="${currentUser.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.name) + '&background=6366f1&color=fff&bold=true')}" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${currentUser.name}') + '&background=6366f1&color=fff&bold=true';" class="w-8 h-8 rounded-xl object-cover ring-1 ring-indigo-500 mt-1">` : ''}
           </div>
         `;
       }).join('');

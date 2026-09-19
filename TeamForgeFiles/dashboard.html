@@ -194,13 +194,21 @@
       if (!user) return;
 
       // Populate User Banner
-      document.getElementById('user-avatar').src = user.avatar;
+      const avatarEl = document.getElementById('user-avatar');
+      const avatarSrc = (user.avatar && user.avatar.startsWith('http')) 
+        ? user.avatar 
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6366f1&color=fff&bold=true&size=128`;
+      avatarEl.src = avatarSrc;
+      avatarEl.onerror = function() {
+        this.onerror = null;
+        this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6366f1&color=fff&bold=true&size=128`;
+      };
       document.getElementById('user-name').textContent = user.name;
       document.getElementById('user-role-badge').textContent = user.role;
-      document.getElementById('user-college').textContent = `${user.college} • ${user.experience}`;
-      document.getElementById('user-rating').textContent = user.rating;
+      document.getElementById('user-college').textContent = `${user.college || 'Sri Sairam college of Engineering'} • ${user.experience || 'Intermediate (2 yrs)'}`;
+      document.getElementById('user-rating').textContent = (user.rating !== undefined && user.rating !== null && !isNaN(Number(user.rating))) ? Number(user.rating).toFixed(1) : '5.0';
       document.getElementById('user-reviews-count').textContent = user.reviewCount || 0;
-      document.getElementById('user-credits').textContent = user.credits || 0;
+      document.getElementById('user-credits').textContent = user.credits || 200;
       document.getElementById('user-availability').textContent = user.availability || '15 hrs/wk';
 
       // Load Teams

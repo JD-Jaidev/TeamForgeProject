@@ -259,17 +259,19 @@
             <div class="glass-card p-5 sm:p-6 rounded-3xl border border-white/5 hover:border-indigo-500/40 space-y-4 transition-all">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                  <img src="${s.avatar}" alt="${s.name}" class="w-14 h-14 rounded-2xl object-cover ring-2 ring-indigo-500/50">
+                  <img src="${s.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(s.name) + '&background=6366f1&color=fff&bold=true&size=128')}" 
+                       onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${s.name}') + '&background=6366f1&color=fff&bold=true&size=128';"
+                       alt="${s.name}" class="w-14 h-14 rounded-2xl object-cover ring-2 ring-indigo-500/50">
                   <div>
                     <div class="flex items-center gap-2">
                       <a href="profile.html?id=${s.id}" class="font-heading text-base font-bold text-white hover:text-indigo-400">${s.name}</a>
                       <span class="badge-lead px-2.5 py-0.5 rounded-full text-[11px] font-semibold">${c.recommendedRole}</span>
                     </div>
-                    <div class="text-xs text-slate-400 mt-0.5">${s.college} • ${s.experience}</div>
+                    <div class="text-xs text-slate-400 mt-0.5">${s.college || 'Sri Sairam college of Engineering'} • ${s.experience || 'Intermediate (2 yrs)'}</div>
                     <div class="flex items-center gap-3 mt-1.5 text-xs">
-                      <span class="text-amber-400 font-bold">★ ${s.rating} (${s.reviewCount || 0})</span>
-                      <span class="text-indigo-300 font-mono">⚡ ${s.credits || 0} Credits</span>
-                      <span class="text-slate-400">🕒 ${s.availability}</span>
+                      <span class="text-amber-400 font-bold">★ ${(s.rating !== undefined && s.rating !== null && !isNaN(Number(s.rating))) ? Number(s.rating).toFixed(1) : '5.0'} (${s.reviewCount || 0})</span>
+                      <span class="text-indigo-300 font-mono">⚡ ${s.credits || 200} Credits</span>
+                      <span class="text-slate-400">🕒 ${s.availability || '15-20 hrs/week'}</span>
                     </div>
                   </div>
                 </div>
