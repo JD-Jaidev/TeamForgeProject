@@ -59,7 +59,7 @@
             <div class="flex items-center gap-3 text-xs text-slate-400">
               <span class="flex items-center gap-1.5 text-emerald-400">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                <span id="online-count">3 members online</span>
+                <span id="online-count">Loading members...</span>
               </span>
               <span>•</span>
               <a id="view-workspace-link" href="#" class="text-indigo-400 hover:underline">View Workspace →</a>
@@ -68,39 +68,40 @@
         </div>
 
         <!-- AI Generator Action Button -->
-        <div class="relative group">
-          <button id="ai-generator-menu-btn" class="btn-gradient px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-600/30">
+        <div class="relative" id="ai-generator-container">
+          <button id="ai-generator-menu-btn" type="button" class="btn-gradient px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-600/30 transition-transform active:scale-95 cursor-pointer">
             <span>✨ AI Idea Generator</span>
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            <svg id="ai-generator-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
 
           <!-- Dropdown of Prompts -->
-          <div class="absolute right-0 mt-2 w-72 glass-panel rounded-2xl p-2 border border-purple-500/30 shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 z-50 space-y-1">
-            <div class="px-3 py-1.5 text-[10px] uppercase font-bold tracking-wider text-purple-300 font-mono">
-              ForgeAI Generator Tools
+          <div id="ai-generator-dropdown" class="hidden absolute right-0 top-full mt-2 w-72 glass-panel rounded-2xl p-2 border border-purple-500/30 shadow-2xl z-50 space-y-1 bg-slate-900/95 backdrop-blur-xl transition-all">
+            <div class="px-3 py-1.5 text-[10px] uppercase font-bold tracking-wider text-purple-300 font-mono flex items-center justify-between">
+              <span>ForgeAI Generator Tools</span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">1-Click Prompts</span>
             </div>
-            <button onclick="triggerAIPrompt('generate_ideas')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/20 hover:text-white flex items-center gap-2">
+            <button onclick="triggerAIPrompt('generate_ideas')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/25 hover:text-white transition-colors flex items-center gap-2">
               <span>💡</span>
               <div>
                 <div class="font-semibold">Generate Hackathon Ideas</div>
                 <div class="text-[10px] text-slate-400">Pitch concepts for this domain</div>
               </div>
             </button>
-            <button onclick="triggerAIPrompt('suggest_tech_stack')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/20 hover:text-white flex items-center gap-2">
+            <button onclick="triggerAIPrompt('suggest_tech_stack')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/25 hover:text-white transition-colors flex items-center gap-2">
               <span>🏗️</span>
               <div>
                 <div class="font-semibold">Suggest Tech Architecture</div>
                 <div class="text-[10px] text-slate-400">Stack & infrastructure plan</div>
               </div>
             </button>
-            <button onclick="triggerAIPrompt('identify_gaps')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/20 hover:text-white flex items-center gap-2">
+            <button onclick="triggerAIPrompt('identify_gaps')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/25 hover:text-white transition-colors flex items-center gap-2">
               <span>🔍</span>
               <div>
                 <div class="font-semibold">Diagnose Missing Skills</div>
                 <div class="text-[10px] text-slate-400">Identify gaps in current roster</div>
               </div>
             </button>
-            <button onclick="triggerAIPrompt('improve_idea')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/20 hover:text-white flex items-center gap-2">
+            <button onclick="triggerAIPrompt('improve_idea')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/25 hover:text-white transition-colors flex items-center gap-2">
               <span>🚀</span>
               <div>
                 <div class="font-semibold">Improve Current Idea</div>
@@ -148,6 +149,23 @@
   <script>
     let activeTeamId = null;
 
+    function toggleAIDropdown(show) {
+      const aiDropdown = document.getElementById('ai-generator-dropdown');
+      const aiChevron = document.getElementById('ai-generator-chevron');
+      if (!aiDropdown) return;
+      
+      const isHidden = aiDropdown.classList.contains('hidden');
+      const shouldShow = show !== undefined ? show : isHidden;
+
+      if (shouldShow) {
+        aiDropdown.classList.remove('hidden');
+        if (aiChevron) aiChevron.classList.add('rotate-180');
+      } else {
+        aiDropdown.classList.add('hidden');
+        if (aiChevron) aiChevron.classList.remove('rotate-180');
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       window.TF_AUTH.requireAuth('login.html');
       window.TF_UI.initPage('chat');
@@ -163,6 +181,23 @@
 
       renderChannels(userTeams);
       renderChat();
+
+      // Dropdown toggle setup
+      const aiBtn = document.getElementById('ai-generator-menu-btn');
+      if (aiBtn) {
+        aiBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleAIDropdown();
+        });
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        const container = document.getElementById('ai-generator-container');
+        if (container && !container.contains(e.target)) {
+          toggleAIDropdown(false);
+        }
+      });
 
       document.getElementById('chat-form').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -217,6 +252,13 @@
       document.getElementById('active-channel-domain').textContent = team.domain;
       document.getElementById('view-workspace-link').href = `team.html?id=${team.id}`;
 
+      // Dynamically display actual online/active member count
+      const memberCount = (team.members?.length || 0) + (team.guests?.length || 0);
+      const onlineCountEl = document.getElementById('online-count');
+      if (onlineCountEl) {
+        onlineCountEl.textContent = `${memberCount} ${memberCount === 1 ? 'member' : 'members'} online`;
+      }
+
       const messages = window.TF_STORE.getMessages(activeTeamId);
       const currentUser = window.TF_AUTH.getCurrentUser();
       const container = document.getElementById('messages-container');
@@ -269,6 +311,7 @@
     }
 
     async function triggerAIPrompt(promptType) {
+      toggleAIDropdown(false);
       document.getElementById('typing-indicator').classList.remove('hidden');
       await window.TF_CHAT.triggerAIAssistant(activeTeamId, promptType);
       document.getElementById('typing-indicator').classList.add('hidden');

@@ -48,8 +48,8 @@ class TeamForgeUI {
             </a>
 
             <!-- Persona Switcher & Profile Dropdown -->
-            <div class="relative group">
-              <button class="flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors">
+            <div class="relative" id="user-profile-menu-container">
+              <button id="user-profile-menu-btn" type="button" class="flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer active:scale-95">
                 <img src="${user.avatar}" alt="${user.name}" class="w-7 h-7 rounded-lg object-cover ring-1 ring-indigo-500/50">
                 <div class="text-left hidden sm:block">
                   <div class="text-xs font-semibold text-white leading-tight">${user.name}</div>
@@ -58,32 +58,33 @@ class TeamForgeUI {
                     <span class="text-amber-400 font-bold">★ ${user.rating}</span>
                   </div>
                 </div>
-                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <svg id="user-profile-chevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </button>
 
               <!-- Dropdown Menu -->
-              <div class="absolute right-0 mt-2 w-64 glass-panel rounded-xl p-2 border border-white/10 shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 z-50">
+              <div id="user-profile-dropdown" class="hidden absolute right-0 top-full mt-2 w-64 glass-panel rounded-2xl p-2 border border-white/10 shadow-2xl z-50 bg-slate-900/95 backdrop-blur-xl transition-all">
                 <div class="px-3 py-2 border-b border-white/5">
-                  <p class="text-xs text-slate-400">Signed in as</p>
+                  <p class="text-[10px] uppercase font-mono tracking-wider text-slate-400">Signed in as</p>
                   <p class="text-sm font-semibold text-white truncate">${user.name}</p>
                   <p class="text-xs text-indigo-400 font-mono truncate">${user.email}</p>
                 </div>
                 
                 <div class="py-1">
-                  <a href="profile.html?id=${user.id}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-white/5">
+                  <a href="profile.html?id=${user.id}" class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-indigo-600/20 transition-colors">
                     👤 My Profile & Reviews
                   </a>
-                  <a href="chat.html" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-white/5">
+                  <a href="chat.html" class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-indigo-600/20 transition-colors">
                     💬 Team Chats & AI Bot
                   </a>
-                  <a href="settings.html" class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-white/5">
+                  <a href="settings.html" class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-indigo-600/20 transition-colors">
                     ⚙️ Settings & API Keys
                   </a>
                 </div>
 
                 <div class="border-t border-white/5 pt-1">
-                  <button onclick="window.TF_AUTH.logout(); window.location.href='index.html';" class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10">
-                    Sign Out
+                  <button onclick="window.TF_AUTH.logout(); window.location.href='index.html';" class="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors flex items-center gap-2">
+                    <span>🚪</span>
+                    <span>Sign Out</span>
                   </button>
                 </div>
               </div>
@@ -99,6 +100,38 @@ class TeamForgeUI {
     const target = document.getElementById('teamforge-navbar');
     if (target) {
       target.innerHTML = navHtml;
+
+      // Bind profile menu toggle
+      const profileBtn = document.getElementById('user-profile-menu-btn');
+      const profileDropdown = document.getElementById('user-profile-dropdown');
+      const profileChevron = document.getElementById('user-profile-chevron');
+
+      if (profileBtn && profileDropdown) {
+        profileBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isHidden = profileDropdown.classList.contains('hidden');
+          if (isHidden) {
+            profileDropdown.classList.remove('hidden');
+            if (profileChevron) profileChevron.classList.add('rotate-180');
+          } else {
+            profileDropdown.classList.add('hidden');
+            if (profileChevron) profileChevron.classList.remove('rotate-180');
+          }
+        });
+      }
+
+      if (!window._tf_profile_click_bound) {
+        document.addEventListener('click', (e) => {
+          const container = document.getElementById('user-profile-menu-container');
+          const dropdown = document.getElementById('user-profile-dropdown');
+          const chevron = document.getElementById('user-profile-chevron');
+          if (container && dropdown && !container.contains(e.target)) {
+            dropdown.classList.add('hidden');
+            if (chevron) chevron.classList.remove('rotate-180');
+          }
+        });
+        window._tf_profile_click_bound = true;
+      }
     }
   }
 
