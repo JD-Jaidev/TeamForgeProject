@@ -200,9 +200,17 @@
       const actionsContainer = document.getElementById('profile-actions-container');
       if (isSelf) {
         actionsContainer.innerHTML = `
-          <button onclick="openEditProfileModal()" class="glass-card px-4 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white border border-white/10 hover:border-indigo-500/40">
-            ✏️ Edit Profile
-          </button>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="openEditProfileModal()" class="glass-card px-4 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white border border-white/10 hover:border-indigo-500/40">
+              ✏️ Edit Profile
+            </button>
+            <a href="settings.html" class="glass-card px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white border border-white/10 hover:border-cyan-500/40">
+              ⚙️ Manage Profiles
+            </a>
+            <button onclick="handleDeleteMyAccount('${s.id}')" class="px-3 py-2 rounded-xl text-xs font-bold bg-rose-600/10 hover:bg-rose-600/20 text-rose-300 hover:text-rose-200 border border-rose-500/30">
+              🗑️ Delete Account
+            </button>
+          </div>
         `;
         document.getElementById('add-project-btn').style.display = 'inline-block';
         document.getElementById('leave-review-btn').style.display = 'none';
@@ -496,6 +504,17 @@
       const isGuest = document.querySelector('input[name="invite-type"]:checked').value === 'guest';
       window.TF_TEAMS.inviteStudent(teamId, studentId, isGuest);
       window.TF_STATE.closeModal();
+    }
+
+    function handleDeleteMyAccount(studentId) {
+      if (confirm("Are you sure you want to permanently delete your account?\n\nThis will remove your profile, teams, and active sessions.")) {
+        window.TF_STORE.deleteStudent(studentId);
+        window.TF_AUTH.logout();
+        window.TF_STATE.toast("Account Deleted", "Your profile and session have been removed.", "info");
+        setTimeout(() => {
+          window.location.href = 'discover.html';
+        }, 500);
+      }
     }
   </script>
 </body>

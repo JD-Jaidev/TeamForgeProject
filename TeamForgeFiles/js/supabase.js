@@ -158,10 +158,16 @@ class TeamForgeStore {
 
   init() {
     let existingStudents = [];
-    try {
-      existingStudents = JSON.parse(localStorage.getItem('tf_students') || '[]');
-    } catch(e) {
-      existingStudents = [];
+    const stored = localStorage.getItem('tf_students');
+    if (stored !== null) {
+      try {
+        existingStudents = JSON.parse(stored || '[]');
+      } catch(e) {
+        existingStudents = [];
+      }
+    } else {
+      // First time launch only
+      existingStudents = INITIAL_STUDENTS;
     }
 
     // Clean up old mock users
@@ -169,20 +175,6 @@ class TeamForgeStore {
 
     // Normalize existing students and repair any broken avatar/rating
     let mergedStudents = existingStudents.map(s => this.normalizeStudent(s)).filter(Boolean);
-
-    // Ensure INITIAL_STUDENTS exist in the list
-    INITIAL_STUDENTS.forEach(initStudent => {
-      const idx = mergedStudents.findIndex(s => 
-        (s.id && s.id === initStudent.id) || 
-        (s.email && initStudent.email && s.email.toLowerCase() === initStudent.email.toLowerCase()) ||
-        (s.name && initStudent.name && s.name.toLowerCase() === initStudent.name.toLowerCase())
-      );
-      if (idx >= 0) {
-        mergedStudents[idx] = this.normalizeStudent({ ...initStudent, ...mergedStudents[idx] });
-      } else {
-        mergedStudents.push(this.normalizeStudent(initStudent));
-      }
-    });
 
     localStorage.setItem('tf_students', JSON.stringify(mergedStudents));
 
@@ -233,6 +225,59 @@ class TeamForgeStore {
     localStorage.setItem('tf_students', JSON.stringify(list));
     this.broadcastStudentToCloud(normalized);
     return normalized;
+  }
+
+  deleteStudent(id) {
+    let list = this.getStudents();
+    const target = list.find(s => s.id === id);
+    if (!target) return false;
+
+    list = list.filter(s => s.id !== id);
+    localStorage.setItem('tf_students', JSON.stringify(list));
+
+    // If active session belongs to this student, sign out
+    const currentUserId = localStorage.getItem('tf_current_user_id');
+    if (currentUserId === id) {
+      localStorage.removeItem('tf_current_user_id');
+    }
+
+    // Clean up from teams
+    let teams = this.getTeams();
+    teams = teams.map(t => ({
+      ...t,
+      members: (t.members || []).filter(m => m.userId !== id),
+      guests: (t.guests || []).filter(g => g.userId !== id),
+      joinRequests: (t.joinRequests || []).filter(r => r.userId !== id)
+    })).filter(t => t.ownerId !== id);
+    localStorage.setItem('tf_teams', JSON.stringify(teams));
+
+    this.deleteStudentFromCloud(id);
+    return true;
+  }
+
+  async deleteStudentFromCloud(id) {
+    try {
+      const res = await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, { cache: 'no-store' });
+      if (res.ok) {
+        const doc = await res.json();
+        if (doc && doc.data && Array.isArray(doc.data.students)) {
+          const updated = doc.data.students.filter(s => s.id !== id);
+          await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: 'teamforge_global_peer_registry',
+              data: {
+                students: updated,
+                updatedAt: new Date().toISOString()
+              }
+            })
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Cloud student delete warning:", err);
+    }
   }
 
   GLOBAL_REGISTRY_ID = 'ff808181a09d98f701a0ba86f516487b';

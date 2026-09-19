@@ -127,12 +127,17 @@
       </div>
 
       <!-- Member Directory Header Counter -->
-      <div class="flex items-center justify-between px-1">
+      <div class="flex items-center justify-between px-1 flex-wrap gap-2">
         <div class="text-xs text-slate-400 font-mono">
           <span id="directory-count" class="font-bold text-white">Loading members...</span>
         </div>
-        <div id="matching-status-pill" class="hidden text-[11px] px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-mono">
-          ✨ Sorted by Match
+        <div class="flex items-center gap-3">
+          <div id="matching-status-pill" class="hidden text-[11px] px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-mono">
+            ✨ Sorted by Match
+          </div>
+          <a href="settings.html" class="text-[11px] text-slate-400 hover:text-indigo-300 transition-colors flex items-center gap-1 font-mono">
+            <span>⚙️</span> Manage Accounts
+          </a>
         </div>
       </div>
 
