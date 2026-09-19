@@ -33,6 +33,33 @@ class TeamForgeAuth {
 
   signup(profileData) {
     const newId = "usr_" + Date.now();
+    const parsedSkills = Array.isArray(profileData.skills) 
+      ? profileData.skills 
+      : (profileData.skills ? profileData.skills.split(',').map(s => s.trim()).filter(Boolean) : ["JavaScript", "Python"]);
+
+    // Derive domains based on role and skills
+    const textBlob = `${profileData.role || ''} ${parsedSkills.join(' ')} ${profileData.bio || ''}`.toLowerCase();
+    const inferredDomains = profileData.domains && profileData.domains.length ? [...profileData.domains] : [];
+    
+    if (textBlob.includes('ai') || textBlob.includes('ml') || textBlob.includes('python') || textBlob.includes('pytorch') || textBlob.includes('tensorflow') || textBlob.includes('data') || textBlob.includes('nlp')) {
+      inferredDomains.push('Artificial Intelligence');
+    }
+    if (textBlob.includes('ui') || textBlob.includes('ux') || textBlob.includes('frontend') || textBlob.includes('react') || textBlob.includes('figma') || textBlob.includes('css') || textBlob.includes('vue') || textBlob.includes('tailwind')) {
+      inferredDomains.push('UI/UX & Frontend');
+    }
+    if (textBlob.includes('web3') || textBlob.includes('solidity') || textBlob.includes('blockchain') || textBlob.includes('crypto') || textBlob.includes('rust') || textBlob.includes('contract')) {
+      inferredDomains.push('Web3 / Blockchain');
+    }
+    if (textBlob.includes('robot') || textBlob.includes('vision') || textBlob.includes('ros') || textBlob.includes('opencv') || textBlob.includes('c++') || textBlob.includes('autonomous')) {
+      inferredDomains.push('Robotics & Autonomous');
+    }
+    if (textBlob.includes('cloud') || textBlob.includes('backend') || textBlob.includes('docker') || textBlob.includes('aws') || textBlob.includes('go') || textBlob.includes('node') || textBlob.includes('systems') || textBlob.includes('devops')) {
+      inferredDomains.push('Cloud Infrastructure');
+    }
+    if (!inferredDomains.length) {
+      inferredDomains.push('Full Stack & Web', 'Artificial Intelligence');
+    }
+
     const newStudent = {
       id: newId,
       email: profileData.email,
@@ -43,8 +70,8 @@ class TeamForgeAuth {
       role: profileData.role || "Full Stack Developer",
       experience: profileData.experience || "Intermediate (2 yrs)",
       availability: profileData.availability || "15-20 hrs/week",
-      skills: Array.isArray(profileData.skills) ? profileData.skills : (profileData.skills ? profileData.skills.split(',').map(s => s.trim()) : ["JavaScript", "Python"]),
-      domains: profileData.domains || ["Web Development", "AI/ML"],
+      skills: parsedSkills,
+      domains: [...new Set(inferredDomains)],
       github: profileData.github || "https://github.com",
       linkedin: profileData.linkedin || "https://linkedin.com",
       portfolio: profileData.portfolio || "",
