@@ -144,6 +144,10 @@
 
       renderAccountsList();
 
+      window.addEventListener('tf_students_updated', () => {
+        renderAccountsList();
+      });
+
       document.getElementById('settings-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const url = document.getElementById('supabase-url').value.trim();

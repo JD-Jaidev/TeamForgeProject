@@ -74,10 +74,20 @@
   <script src="js/state.js"></script>
 
   <script>
-    document.getElementById('login-form').addEventListener('submit', (e) => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (window.TF_STORE && typeof window.TF_STORE.syncCloudPeers === 'function') {
+        await window.TF_STORE.syncCloudPeers();
+      }
+    });
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+
+      if (window.TF_STORE && typeof window.TF_STORE.syncCloudPeers === 'function') {
+        await window.TF_STORE.syncCloudPeers();
+      }
 
       const result = window.TF_AUTH.login(email, password);
       if (result.success) {

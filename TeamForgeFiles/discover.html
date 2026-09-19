@@ -602,11 +602,15 @@
         renderStudents();
       }
 
-      // Multi-tab and window focus sync: automatically re-render when switching tabs/windows
+      // Multi-tab and live realtime broadcast event listener
       window.addEventListener('storage', (e) => {
         if (e.key === 'tf_students') {
           renderStudents();
         }
+      });
+
+      window.addEventListener('tf_students_updated', () => {
+        renderStudents();
       });
 
       window.addEventListener('focus', async () => {

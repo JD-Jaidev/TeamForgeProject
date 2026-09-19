@@ -1,52 +1,7 @@
 // Supabase Client Wrapper & Responsive Local Store
 // Handles real Supabase Postgres/Auth/Realtime when configured, and falls back to rich reactive store for 100% functional live experience.
 
-const INITIAL_STUDENTS = [
-  {
-    id: "usr_jaidev_01",
-    name: "Jaidev S",
-    email: "jaidev@example.com",
-    avatar: "https://ui-avatars.com/api/?name=Jaidev+S&background=6366f1&color=fff&bold=true&size=128",
-    college: "Sri Sairam college of Engineering",
-    role: "Full Stack Developer & AI Lead",
-    bio: "Passionate developer building scalable web applications, real-time collaboration platforms, and AI agents.",
-    experience: "Intermediate (2 yrs)",
-    availability: "20 hrs/week",
-    skills: ["Python", "React", "Node.js", "FastAPI", "PyTorch", "UI/UX Design"],
-    domains: ["Full Stack & Web", "Artificial Intelligence", "UI/UX & Frontend"],
-    rating: 5.0,
-    credits: 200,
-    reviewCount: 0,
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
-    portfolio: "",
-    preferredRoles: ["Full Stack Developer", "AI Engineer"],
-    projects: [],
-    verifiedBadge: true
-  },
-  {
-    id: "usr_bhagavth_01",
-    name: "Bhagavth Kumar G",
-    email: "bhagavth@example.com",
-    avatar: "https://ui-avatars.com/api/?name=Bhagavth+Kumar+G&background=4f46e5&color=fff&bold=true&size=128",
-    college: "Sri Sairam college of Engineering",
-    role: "Full Stack Developer",
-    bio: "Ambition student developer ready to collaborate on innovative projects.",
-    experience: "Intermediate (2 yrs)",
-    availability: "15-20 hrs/week",
-    skills: ["Full Stack", "JavaScript", "Python", "React", "Tailwind", "Node.js", "Docker"],
-    domains: ["Full Stack & Web", "Artificial Intelligence", "Cloud Infrastructure"],
-    rating: 5.0,
-    credits: 200,
-    reviewCount: 0,
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
-    portfolio: "",
-    preferredRoles: ["Full Stack Developer"],
-    projects: [],
-    verifiedBadge: true
-  }
-];
+const INITIAL_STUDENTS = [];
 
 const INITIAL_TEAMS = [];
 
@@ -135,24 +90,24 @@ class TeamForgeStore {
     return {
       id: s.id || ('usr_' + Math.random().toString(36).substr(2, 9)),
       name: name,
-      email: s.email || `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@example.com`,
+      email: s.email || '',
       avatar: avatar,
-      college: s.college || "Sri Sairam college of Engineering",
-      role: s.role || "Full Stack Developer",
-      bio: s.bio || "Ambition student developer ready to collaborate on innovative projects.",
-      experience: s.experience || "Intermediate (2 yrs)",
-      availability: s.availability || "15-20 hrs/week",
-      skills: (Array.isArray(s.skills) && s.skills.length > 0) ? s.skills : ["JavaScript", "Python", "React", "Node.js"],
-      domains: (Array.isArray(s.domains) && s.domains.length > 0) ? s.domains : ["Full Stack & Web", "Artificial Intelligence"],
+      college: s.college || '',
+      role: s.role || 'Full Stack Developer',
+      bio: s.bio || '',
+      experience: s.experience || 'Intermediate (2 yrs)',
+      availability: s.availability || '15-20 hrs/week',
+      skills: (Array.isArray(s.skills) && s.skills.length > 0) ? s.skills : ['JavaScript', 'Python'],
+      domains: (Array.isArray(s.domains) && s.domains.length > 0) ? s.domains : ['Full Stack & Web'],
       rating: (s.rating !== undefined && s.rating !== null && !isNaN(Number(s.rating))) ? Number(s.rating) : 5.0,
       credits: (s.credits !== undefined && s.credits !== null && !isNaN(Number(s.credits))) ? Number(s.credits) : 200,
       reviewCount: (s.reviewCount !== undefined && s.reviewCount !== null && !isNaN(Number(s.reviewCount))) ? Number(s.reviewCount) : 0,
-      github: s.github || "https://github.com",
-      linkedin: s.linkedin || "https://linkedin.com",
-      portfolio: s.portfolio || "",
-      preferredRoles: s.preferredRoles || [s.role || "Developer"],
+      github: s.github || '',
+      linkedin: s.linkedin || '',
+      portfolio: s.portfolio || '',
+      preferredRoles: s.preferredRoles || [s.role || 'Developer'],
       projects: s.projects || [],
-      verifiedBadge: s.verifiedBadge !== undefined ? Boolean(s.verifiedBadge) : true
+      verifiedBadge: Boolean(s.verifiedBadge)
     };
   }
 
@@ -165,17 +120,19 @@ class TeamForgeStore {
       } catch(e) {
         existingStudents = [];
       }
-    } else {
-      // First time launch only
-      existingStudents = INITIAL_STUDENTS;
     }
 
-    // Clean up old mock users
-    existingStudents = existingStudents.filter(s => s && s.id !== 'usr_alex_01');
+    // Clean up any old mock/example profiles or example.com emails
+    existingStudents = existingStudents.filter(s => 
+      s && 
+      s.id !== 'usr_alex_01' && 
+      s.id !== 'usr_jaidev_01' && 
+      s.id !== 'usr_bhagavth_01' && 
+      (!s.email || !s.email.toLowerCase().includes('example.com'))
+    );
 
-    // Normalize existing students and repair any broken avatar/rating
+    // Normalize existing real students
     let mergedStudents = existingStudents.map(s => this.normalizeStudent(s)).filter(Boolean);
-
     localStorage.setItem('tf_students', JSON.stringify(mergedStudents));
 
     if (!localStorage.getItem('tf_teams')) {
@@ -199,11 +156,13 @@ class TeamForgeStore {
     if (!localStorage.getItem('tf_notifications')) {
       localStorage.setItem('tf_notifications', JSON.stringify(INITIAL_NOTIFICATIONS));
     }
+
+    this.initRealtimePeerSync();
   }
 
   getStudents() {
     const raw = JSON.parse(localStorage.getItem('tf_students') || '[]');
-    return raw.map(s => this.normalizeStudent(s)).filter(Boolean);
+    return raw.map(s => this.normalizeStudent(s)).filter(s => s && (!s.email || !s.email.toLowerCase().includes('example.com')));
   }
 
   getStudentById(id) {
@@ -255,153 +214,134 @@ class TeamForgeStore {
     return true;
   }
 
-  async deleteStudentFromCloud(id) {
+  PEER_CHANNEL = 'teamforge_peers_sync_net_v1';
+
+  initRealtimePeerSync() {
+    if (this._realtimeInitialized) return;
+    this._realtimeInitialized = true;
+
+    // 1. Initial background fetch from peer channel
+    this.syncCloudPeers();
+
+    // 2. Realtime SSE stream for instant cross-device updates
     try {
-      const res = await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, { cache: 'no-store' });
-      if (res.ok) {
-        const doc = await res.json();
-        if (doc && doc.data && Array.isArray(doc.data.students)) {
-          const updated = doc.data.students.filter(s => s.id !== id);
-          await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: 'teamforge_global_peer_registry',
-              data: {
-                students: updated,
-                updatedAt: new Date().toISOString()
+      if (typeof EventSource !== 'undefined') {
+        const es = new EventSource(`https://ntfy.sh/${this.PEER_CHANNEL}/sse`);
+        es.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg && msg.message) {
+              const payload = JSON.parse(msg.message);
+              if (payload.action === 'upsert_student' && payload.student) {
+                this.ingestCloudStudent(payload.student);
+              } else if (payload.action === 'delete_student' && payload.studentId) {
+                let list = this.getStudents().filter(s => s.id !== payload.studentId);
+                localStorage.setItem('tf_students', JSON.stringify(list));
+                window.dispatchEvent(new CustomEvent('tf_students_updated'));
               }
-            })
-          });
-        }
+            }
+          } catch (e) {}
+        };
       }
     } catch (err) {
-      console.warn("Cloud student delete warning:", err);
+      console.warn("SSE stream setup warning:", err);
     }
   }
 
-  GLOBAL_REGISTRY_ID = 'ff808181a09d98f701a0ba86f516487b';
+  ingestCloudStudent(cloudStudent) {
+    if (!cloudStudent || (!cloudStudent.name && !cloudStudent.email)) return;
+    if (cloudStudent.email && cloudStudent.email.toLowerCase().includes('example.com')) return;
+
+    const normalized = this.normalizeStudent(cloudStudent);
+    if (!normalized) return;
+
+    const localStudents = this.getStudents();
+    const idx = localStudents.findIndex(s => 
+      s.id === normalized.id || 
+      (s.email && normalized.email && s.email.toLowerCase() === normalized.email.toLowerCase()) || 
+      (s.name && normalized.name && s.name.toLowerCase() === normalized.name.toLowerCase())
+    );
+
+    if (idx >= 0) {
+      localStudents[idx] = this.normalizeStudent({ ...localStudents[idx], ...normalized });
+    } else {
+      localStudents.push(normalized);
+    }
+
+    localStorage.setItem('tf_students', JSON.stringify(localStudents));
+    window.dispatchEvent(new CustomEvent('tf_students_updated'));
+  }
 
   async broadcastStudentToCloud(student) {
     const normalized = this.normalizeStudent(student);
     if (!normalized) return;
+    if (normalized.email && normalized.email.toLowerCase().includes('example.com')) return;
 
     try {
-      // 1. Supabase (if configured)
-      if (window.TF_CONFIG && window.TF_CONFIG.isSupabaseConfigured()) {
-        await this.saveStudentRemote(normalized);
-      }
-
-      // 2. Global Universal Cloud Peer Relay (for zero-config cross-device visibility)
-      const res = await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, { cache: 'no-store' });
-      let currentStudents = [];
-      if (res.ok) {
-        const doc = await res.json();
-        if (doc && doc.data && Array.isArray(doc.data.students)) {
-          currentStudents = doc.data.students.map(s => this.normalizeStudent(s)).filter(Boolean);
-        }
-      }
-
-      // Merge current student
-      const idx = currentStudents.findIndex(s => s.id === normalized.id || (s.email && normalized.email && s.email.toLowerCase() === normalized.email.toLowerCase()) || (s.name && normalized.name && s.name.toLowerCase() === normalized.name.toLowerCase()));
-      if (idx >= 0) {
-        currentStudents[idx] = { ...currentStudents[idx], ...normalized };
-      } else {
-        currentStudents.push(normalized);
-      }
-
-      // Update registry
-      await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch(`https://ntfy.sh/${this.PEER_CHANNEL}`, {
+        method: 'POST',
+        headers: { 'Title': 'Peer Sync', 'Tags': 'user' },
         body: JSON.stringify({
-          name: 'teamforge_global_peer_registry',
-          data: {
-            students: currentStudents,
-            updatedAt: new Date().toISOString()
-          }
+          action: 'upsert_student',
+          student: normalized,
+          timestamp: new Date().toISOString()
         })
       });
     } catch (err) {
-      console.warn("Cloud peer broadcast warning:", err);
+      console.warn("Cloud peer broadcast error:", err);
     }
   }
 
-  async saveStudentRemote(student) {
-    if (!window.TF_CONFIG || !window.TF_CONFIG.isSupabaseConfigured()) return;
+  async deleteStudentFromCloud(id) {
     try {
-      const url = `${window.TF_CONFIG.SUPABASE_URL}/rest/v1/profiles`;
-      await fetch(url, {
+      await fetch(`https://ntfy.sh/${this.PEER_CHANNEL}`, {
         method: 'POST',
-        headers: {
-          'apikey': window.TF_CONFIG.SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${window.TF_CONFIG.SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
-        },
+        headers: { 'Title': 'Peer Delete', 'Tags': 'wastebasket' },
         body: JSON.stringify({
-          email: student.email,
-          name: student.name,
-          avatar_url: student.avatar,
-          college: student.college,
-          bio: student.bio,
-          role: student.role,
-          experience: student.experience,
-          availability: student.availability,
-          rating: student.rating,
-          credits: student.credits,
-          review_count: student.reviewCount,
-          github_url: student.github,
-          linkedin_url: student.linkedin,
-          portfolio_url: student.portfolio
+          action: 'delete_student',
+          studentId: id,
+          timestamp: new Date().toISOString()
         })
       });
-    } catch (e) {
-      console.warn("Remote profile save warning:", e);
+    } catch (err) {
+      console.warn("Cloud student delete error:", err);
     }
   }
 
   async syncCloudPeers() {
     let syncedCount = 0;
-
-    // 1. Supabase Sync (if configured)
-    if (window.TF_CONFIG && window.TF_CONFIG.isSupabaseConfigured()) {
-      await this.syncFromSupabase();
-    }
-
-    // 2. Dedicated Global Cloud Peer Registry Sync
     try {
-      const res = await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, { cache: 'no-store' });
+      const res = await fetch(`https://ntfy.sh/${this.PEER_CHANNEL}/json?poll=1&since=all`, { cache: 'no-store' });
       if (res.ok) {
-        const doc = await res.json();
-        if (doc && doc.data && Array.isArray(doc.data.students)) {
-          const cloudStudents = doc.data.students.map(s => this.normalizeStudent(s)).filter(Boolean);
-          if (cloudStudents.length > 0) {
-            const localStudents = this.getStudents();
-            cloudStudents.forEach(cs => {
-              if (!cs) return;
-              const idx = localStudents.findIndex(s => s.id === cs.id || (s.email && cs.email && s.email.toLowerCase() === cs.email.toLowerCase()) || (s.name && cs.name && s.name.toLowerCase() === cs.name.toLowerCase()));
-              if (idx >= 0) {
-                localStudents[idx] = this.normalizeStudent({ ...localStudents[idx], ...cs });
-              } else {
-                localStudents.push(cs);
+        const text = await res.text();
+        const lines = text.trim().split('\n').filter(Boolean);
+        lines.forEach(line => {
+          try {
+            const data = JSON.parse(line);
+            if (data && data.message) {
+              const payload = JSON.parse(data.message);
+              if (payload.action === 'upsert_student' && payload.student) {
+                this.ingestCloudStudent(payload.student);
                 syncedCount++;
+              } else if (payload.action === 'delete_student' && payload.studentId) {
+                let list = this.getStudents().filter(s => s.id !== payload.studentId);
+                localStorage.setItem('tf_students', JSON.stringify(list));
               }
-            });
-            localStorage.setItem('tf_students', JSON.stringify(localStudents));
-          }
-        }
+            }
+          } catch (e) {}
+        });
       }
     } catch (err) {
-      console.warn("Universal cloud sync error:", err);
+      console.warn("Sync cloud peers error:", err);
     }
 
-    // Also ensure current logged-in user is published to registry
+    // Publish current logged-in user so peers discover it immediately
     const currentUser = window.TF_AUTH ? window.TF_AUTH.getCurrentUser() : null;
-    if (currentUser) {
+    if (currentUser && (!currentUser.email || !currentUser.email.toLowerCase().includes('example.com'))) {
       this.broadcastStudentToCloud(currentUser);
     }
 
+    window.dispatchEvent(new CustomEvent('tf_students_updated'));
     return syncedCount;
   }
 

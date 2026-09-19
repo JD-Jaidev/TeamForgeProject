@@ -137,6 +137,12 @@
   <script src="js/state.js"></script>
 
   <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (window.TF_STORE && typeof window.TF_STORE.syncCloudPeers === 'function') {
+        await window.TF_STORE.syncCloudPeers();
+      }
+    });
+
     document.getElementById('signup-form').addEventListener('submit', (e) => {
       e.preventDefault();
 
