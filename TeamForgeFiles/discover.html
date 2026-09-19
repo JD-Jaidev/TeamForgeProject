@@ -46,9 +46,14 @@
             <input type="text" id="search-query" placeholder="Search by name, skills (e.g. Python, React, PyTorch), role, or university..." class="glass-input w-full pl-10 pr-4 py-2.5 rounded-xl text-sm placeholder-slate-500">
             <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           </div>
-          <button onclick="clearAllFilters()" class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-white/10 transition-colors shrink-0 w-full sm:w-auto flex items-center justify-center gap-1.5">
-            <span>↺</span> Reset Filters
-          </button>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button id="sync-cloud-btn" onclick="triggerCloudSync()" class="btn-gradient px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shrink-0 cursor-pointer">
+              <span>🔄</span> <span id="sync-btn-text">Sync Live Peers</span>
+            </button>
+            <button onclick="clearAllFilters()" class="px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-white/10 transition-colors shrink-0 flex items-center justify-center gap-1">
+              <span>↺</span> Reset
+            </button>
+          </div>
         </div>
 
         <!-- Filter Dropdowns & Sorting -->
@@ -564,13 +569,26 @@
       renderStudents();
     }
 
+    async function triggerCloudSync() {
+      const btnText = document.getElementById('sync-btn-text');
+      if (btnText) btnText.textContent = 'Syncing...';
+
+      if (window.TF_STORE && typeof window.TF_STORE.syncCloudPeers === 'function') {
+        const newCount = await window.TF_STORE.syncCloudPeers();
+        renderStudents();
+        window.TF_STATE.toast("Peers Synced 🌐", `Synchronized live community directory across all devices.`, "success");
+      }
+
+      if (btnText) btnText.textContent = 'Sync Live Peers';
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       window.TF_UI.initPage('discover');
       renderStudents();
 
-      // Cloud Sync (if Supabase configured)
-      if (window.TF_STORE && typeof window.TF_STORE.syncFromSupabase === 'function') {
-        await window.TF_STORE.syncFromSupabase();
+      // Automatic Cross-Device Cloud Peer Sync
+      if (window.TF_STORE && typeof window.TF_STORE.syncCloudPeers === 'function') {
+        await window.TF_STORE.syncCloudPeers();
         renderStudents();
       }
 

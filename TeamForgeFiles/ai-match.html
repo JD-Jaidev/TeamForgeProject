@@ -409,8 +409,12 @@
       window.TF_STATE.closeModal();
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       window.TF_UI.initPage('ai-match');
+
+      if (window.TF_STORE && typeof window.TF_STORE.syncCloudPeers === 'function') {
+        await window.TF_STORE.syncCloudPeers();
+      }
 
       // Populate user's teams in gap select
       const user = window.TF_AUTH.getCurrentUser();

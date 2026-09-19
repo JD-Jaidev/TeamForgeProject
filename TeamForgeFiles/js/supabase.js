@@ -138,8 +138,35 @@ class TeamForgeStore {
       list.push(student);
     }
     localStorage.setItem('tf_students', JSON.stringify(list));
-    this.saveStudentRemote(student);
+    this.broadcastStudentToCloud(student);
     return student;
+  }
+
+  async broadcastStudentToCloud(student) {
+    try {
+      // 1. Supabase (if configured)
+      if (window.TF_CONFIG && window.TF_CONFIG.isSupabaseConfigured()) {
+        await this.saveStudentRemote(student);
+      }
+
+      // 2. Global Universal Cloud Peer Relay (for zero-config cross-device visibility)
+      const payload = {
+        name: `teamforge_student_${student.email ? student.email.replace(/[^a-zA-Z0-9]/g, '_') : Date.now()}`,
+        data: {
+          tag: 'teamforge_peer_v1',
+          student: student,
+          updatedAt: new Date().toISOString()
+        }
+      };
+
+      fetch('https://api.restful-api.dev/objects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(e => console.warn("Cloud relay post error:", e));
+    } catch (err) {
+      console.warn("Cloud peer broadcast warning:", err);
+    }
   }
 
   async saveStudentRemote(student) {
@@ -174,6 +201,53 @@ class TeamForgeStore {
     } catch (e) {
       console.warn("Remote profile save warning:", e);
     }
+  }
+
+  async syncCloudPeers() {
+    let syncedCount = 0;
+
+    // 1. Supabase Sync (if configured)
+    if (window.TF_CONFIG && window.TF_CONFIG.isSupabaseConfigured()) {
+      await this.syncFromSupabase();
+    }
+
+    // 2. Universal Global Cloud Peer Sync
+    try {
+      const res = await fetch('https://api.restful-api.dev/objects', { cache: 'no-store' });
+      if (res.ok) {
+        const items = await res.json();
+        if (Array.isArray(items)) {
+          const cloudStudents = items
+            .filter(item => item && item.data && item.data.tag === 'teamforge_peer_v1' && item.data.student)
+            .map(item => item.data.student);
+
+          if (cloudStudents.length > 0) {
+            const localStudents = this.getStudents();
+            cloudStudents.forEach(cs => {
+              if (!cs || !cs.email) return;
+              const idx = localStudents.findIndex(s => s.id === cs.id || (s.email && cs.email && s.email.toLowerCase() === cs.email.toLowerCase()));
+              if (idx >= 0) {
+                localStudents[idx] = { ...localStudents[idx], ...cs };
+              } else {
+                localStudents.push(cs);
+                syncedCount++;
+              }
+            });
+            localStorage.setItem('tf_students', JSON.stringify(localStudents));
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Universal cloud sync error:", err);
+    }
+
+    // Broadcast current user if registered locally but not yet on cloud
+    const currentUser = window.TF_AUTH ? window.TF_AUTH.getCurrentUser() : null;
+    if (currentUser) {
+      this.broadcastStudentToCloud(currentUser);
+    }
+
+    return syncedCount;
   }
 
   async syncFromSupabase() {

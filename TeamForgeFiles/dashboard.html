@@ -186,6 +186,10 @@
       window.TF_AUTH.requireAuth('login.html');
       window.TF_UI.initPage('dashboard');
 
+      if (window.TF_STORE && typeof window.TF_STORE.syncCloudPeers === 'function') {
+        await window.TF_STORE.syncCloudPeers();
+      }
+
       const user = window.TF_AUTH.getCurrentUser();
       if (!user) return;
 
