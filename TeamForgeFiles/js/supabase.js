@@ -142,6 +142,8 @@ class TeamForgeStore {
     return student;
   }
 
+  GLOBAL_REGISTRY_ID = 'ff808181a09d98f701a0ba86f516487b';
+
   async broadcastStudentToCloud(student) {
     try {
       // 1. Supabase (if configured)
@@ -150,20 +152,35 @@ class TeamForgeStore {
       }
 
       // 2. Global Universal Cloud Peer Relay (for zero-config cross-device visibility)
-      const payload = {
-        name: `teamforge_student_${student.email ? student.email.replace(/[^a-zA-Z0-9]/g, '_') : Date.now()}`,
-        data: {
-          tag: 'teamforge_peer_v1',
-          student: student,
-          updatedAt: new Date().toISOString()
+      const res = await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, { cache: 'no-store' });
+      let currentStudents = [];
+      if (res.ok) {
+        const doc = await res.json();
+        if (doc && doc.data && Array.isArray(doc.data.students)) {
+          currentStudents = doc.data.students;
         }
-      };
+      }
 
-      fetch('https://api.restful-api.dev/objects', {
-        method: 'POST',
+      // Merge current student
+      const idx = currentStudents.findIndex(s => s.id === student.id || (s.email && student.email && s.email.toLowerCase() === student.email.toLowerCase()));
+      if (idx >= 0) {
+        currentStudents[idx] = { ...currentStudents[idx], ...student };
+      } else {
+        currentStudents.push(student);
+      }
+
+      // Update registry
+      await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).catch(e => console.warn("Cloud relay post error:", e));
+        body: JSON.stringify({
+          name: 'teamforge_global_peer_registry',
+          data: {
+            students: currentStudents,
+            updatedAt: new Date().toISOString()
+          }
+        })
+      });
     } catch (err) {
       console.warn("Cloud peer broadcast warning:", err);
     }
@@ -211,21 +228,18 @@ class TeamForgeStore {
       await this.syncFromSupabase();
     }
 
-    // 2. Universal Global Cloud Peer Sync
+    // 2. Dedicated Global Cloud Peer Registry Sync
     try {
-      const res = await fetch('https://api.restful-api.dev/objects', { cache: 'no-store' });
+      const res = await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, { cache: 'no-store' });
       if (res.ok) {
-        const items = await res.json();
-        if (Array.isArray(items)) {
-          const cloudStudents = items
-            .filter(item => item && item.data && item.data.tag === 'teamforge_peer_v1' && item.data.student)
-            .map(item => item.data.student);
-
+        const doc = await res.json();
+        if (doc && doc.data && Array.isArray(doc.data.students)) {
+          const cloudStudents = doc.data.students;
           if (cloudStudents.length > 0) {
             const localStudents = this.getStudents();
             cloudStudents.forEach(cs => {
-              if (!cs || !cs.email) return;
-              const idx = localStudents.findIndex(s => s.id === cs.id || (s.email && cs.email && s.email.toLowerCase() === cs.email.toLowerCase()));
+              if (!cs || (!cs.name && !cs.email)) return;
+              const idx = localStudents.findIndex(s => s.id === cs.id || (s.email && cs.email && s.email.toLowerCase() === cs.email.toLowerCase()) || (s.name && cs.name && s.name.toLowerCase() === cs.name.toLowerCase()));
               if (idx >= 0) {
                 localStudents[idx] = { ...localStudents[idx], ...cs };
               } else {
@@ -241,7 +255,7 @@ class TeamForgeStore {
       console.warn("Universal cloud sync error:", err);
     }
 
-    // Broadcast current user if registered locally but not yet on cloud
+    // Also ensure current logged-in user is published to registry
     const currentUser = window.TF_AUTH ? window.TF_AUTH.getCurrentUser() : null;
     if (currentUser) {
       this.broadcastStudentToCloud(currentUser);

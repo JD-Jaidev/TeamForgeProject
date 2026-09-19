@@ -592,12 +592,27 @@
         renderStudents();
       }
 
-      // Multi-tab sync: automatically re-render when new accounts are signed up in other tabs
+      // Multi-tab and window focus sync: automatically re-render when switching tabs/windows
       window.addEventListener('storage', (e) => {
         if (e.key === 'tf_students') {
           renderStudents();
         }
       });
+
+      window.addEventListener('focus', async () => {
+        if (window.TF_STORE && typeof window.TF_STORE.syncCloudPeers === 'function') {
+          await window.TF_STORE.syncCloudPeers();
+          renderStudents();
+        }
+      });
+
+      // Periodic live background sync every 15s
+      setInterval(async () => {
+        if (window.TF_STORE && typeof window.TF_STORE.syncCloudPeers === 'function') {
+          await window.TF_STORE.syncCloudPeers();
+          renderStudents();
+        }
+      }, 15000);
 
       document.getElementById('search-query').addEventListener('input', renderStudents);
       document.getElementById('filter-domain').addEventListener('change', renderStudents);
