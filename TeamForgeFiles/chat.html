@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Team Chat & AI Studio — TeamForge</title>
+  <meta name="description" content="Collaborative real-time team chat powered by Supabase Realtime and integrated ForgeAI Idea Generator.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Top Navbar -->
+  <div id="teamforge-navbar"></div>
+
+  <div class="max-w-7xl mx-auto w-full flex-1 flex p-2 sm:p-4 lg:p-6 gap-4 min-h-[calc(100vh-80px)]">
+    
+    <!-- Channel / Team Switcher Sidebar -->
+    <aside class="w-64 glass-panel rounded-3xl border border-white/10 p-4 flex flex-col justify-between hidden md:flex shrink-0">
+      <div class="space-y-4">
+        <div class="flex items-center justify-between px-2">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">Team Channels</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Supabase Realtime Connected"></span>
+        </div>
+
+        <div id="channels-list" class="space-y-1.5">
+          <!-- Populated dynamically with user's teams -->
+        </div>
+      </div>
+
+      <!-- AI Assistant Quick Prompt Card -->
+      <div class="glass-card p-3 rounded-2xl border border-purple-500/30 bg-purple-950/20 space-y-2">
+        <div class="flex items-center gap-2 text-xs font-bold text-purple-300">
+          <span>✨ @ForgeAI Assistant</span>
+        </div>
+        <p class="text-[11px] text-slate-400 leading-tight">
+          Type queries or click the AI menu in chat for instant architectures & ideas.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Main Chat Window Area -->
+    <main class="flex-1 glass-panel rounded-3xl border border-white/10 flex flex-col overflow-hidden shadow-2xl relative">
+      
+      <!-- Chat Header -->
+      <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-slate-900/60 backdrop-blur-md">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center font-bold text-white shadow-lg">
+            ⚡
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 id="active-channel-name" class="font-heading font-bold text-base text-white"></h1>
+              <span id="active-channel-domain" class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-indigo-300"></span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-slate-400">
+              <span class="flex items-center gap-1.5 text-emerald-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span id="online-count">3 members online</span>
+              </span>
+              <span>•</span>
+              <a id="view-workspace-link" href="#" class="text-indigo-400 hover:underline">View Workspace →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Generator Action Button -->
+        <div class="relative group">
+          <button id="ai-generator-menu-btn" class="btn-gradient px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-600/30">
+            <span>✨ AI Idea Generator</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+
+          <!-- Dropdown of Prompts -->
+          <div class="absolute right-0 mt-2 w-72 glass-panel rounded-2xl p-2 border border-purple-500/30 shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150 z-50 space-y-1">
+            <div class="px-3 py-1.5 text-[10px] uppercase font-bold tracking-wider text-purple-300 font-mono">
+              ForgeAI Generator Tools
+            </div>
+            <button onclick="triggerAIPrompt('generate_ideas')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/20 hover:text-white flex items-center gap-2">
+              <span>💡</span>
+              <div>
+                <div class="font-semibold">Generate Hackathon Ideas</div>
+                <div class="text-[10px] text-slate-400">Pitch concepts for this domain</div>
+              </div>
+            </button>
+            <button onclick="triggerAIPrompt('suggest_tech_stack')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/20 hover:text-white flex items-center gap-2">
+              <span>🏗️</span>
+              <div>
+                <div class="font-semibold">Suggest Tech Architecture</div>
+                <div class="text-[10px] text-slate-400">Stack & infrastructure plan</div>
+              </div>
+            </button>
+            <button onclick="triggerAIPrompt('identify_gaps')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/20 hover:text-white flex items-center gap-2">
+              <span>🔍</span>
+              <div>
+                <div class="font-semibold">Diagnose Missing Skills</div>
+                <div class="text-[10px] text-slate-400">Identify gaps in current roster</div>
+              </div>
+            </button>
+            <button onclick="triggerAIPrompt('improve_idea')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-purple-600/20 hover:text-white flex items-center gap-2">
+              <span>🚀</span>
+              <div>
+                <div class="font-semibold">Improve Current Idea</div>
+                <div class="text-[10px] text-slate-400">Add winning moat & gamification</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Log Container -->
+      <div id="messages-container" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+        <!-- Dynamically rendered -->
+      </div>
+
+      <!-- Typing / Status Bar -->
+      <div id="typing-indicator" class="hidden px-6 py-1 text-[11px] text-purple-300 font-mono flex items-center gap-2 bg-purple-950/20">
+        <span class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span>
+        <span>ForgeAI is generating response...</span>
+      </div>
+
+      <!-- Message Input Bar -->
+      <div class="p-4 border-t border-white/10 bg-slate-900/80 backdrop-blur-md">
+        <form id="chat-form" class="flex items-center gap-2">
+          <input type="text" id="chat-input" placeholder="Type a message or ask @ForgeAI for feedback..." autocomplete="off" class="glass-input flex-1 px-4 py-3 rounded-2xl text-sm placeholder-slate-500">
+          <button type="submit" class="btn-gradient px-6 py-3 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-indigo-600/30 shrink-0">
+            <span>Send</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/env.js" onerror="this.remove()"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ai-service.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/ui.js"></script>
+
+  <script>
+    let activeTeamId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.TF_AUTH.requireAuth('login.html');
+      window.TF_UI.initPage('chat');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const teamParam = urlParams.get('team');
+
+      const user = window.TF_AUTH.getCurrentUser();
+      const allTeams = window.TF_STORE.getTeams();
+      const userTeams = allTeams.filter(t => t.members.some(m => m.userId === user.id) || (t.guests && t.guests.some(g => g.userId === user.id)));
+
+      activeTeamId = teamParam || (userTeams[0] ? userTeams[0].id : 'team_neurosync_01');
+
+      renderChannels(userTeams);
+      renderChat();
+
+      document.getElementById('chat-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        input.value = '';
+        window.TF_CHAT.sendMessage(activeTeamId, text);
+        renderChat();
+
+        // Check if message asks @ForgeAI
+        if (text.toLowerCase().includes('@forgeai') || text.toLowerCase().includes('ai')) {
+          handleAIBotReply(text);
+        }
+      });
+    });
+
+    function renderChannels(teams) {
+      const container = document.getElementById('channels-list');
+      if (teams.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-500 italic p-2">No teams joined yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = teams.map(t => {
+        const isActive = t.id === activeTeamId;
+        return `
+          <button onclick="switchChannel('${t.id}')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors ${isActive ? 'bg-indigo-600/30 text-white border border-indigo-500/40' : 'text-slate-300 hover:bg-white/5 hover:text-white'}">
+            <span class="truncate"># ${t.name}</span>
+            ${isActive ? '<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>' : ''}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function switchChannel(teamId) {
+      activeTeamId = teamId;
+      const user = window.TF_AUTH.getCurrentUser();
+      const allTeams = window.TF_STORE.getTeams();
+      const userTeams = allTeams.filter(t => t.members.some(m => m.userId === user.id) || (t.guests && t.guests.some(g => g.userId === user.id)));
+      
+      renderChannels(userTeams);
+      renderChat();
+    }
+
+    function renderChat() {
+      const team = window.TF_STORE.getTeamById(activeTeamId);
+      if (!team) return;
+
+      document.getElementById('active-channel-name').textContent = `# ${team.name}`;
+      document.getElementById('active-channel-domain').textContent = team.domain;
+      document.getElementById('view-workspace-link').href = `team.html?id=${team.id}`;
+
+      const messages = window.TF_STORE.getMessages(activeTeamId);
+      const currentUser = window.TF_AUTH.getCurrentUser();
+      const container = document.getElementById('messages-container');
+
+      container.innerHTML = messages.map(m => {
+        const isMe = currentUser && m.senderId === currentUser.id;
+        const isAi = m.isAi;
+
+        if (isAi) {
+          return `
+            <div class="chat-bubble-ai p-4 sm:p-5 rounded-2xl max-w-2xl space-y-3">
+              <div class="flex items-center justify-between border-b border-purple-500/20 pb-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-xs font-bold">✨</div>
+                  <span class="text-xs font-bold text-purple-200">ForgeAI Assistant</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono">${m.aiMeta?.category || 'AI Recommendation'}</span>
+                </div>
+                <span class="text-[10px] text-slate-400 font-mono">${m.timestamp ? m.timestamp.slice(11, 16) : ''}</span>
+              </div>
+
+              <div class="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">${m.content}</div>
+
+              <div class="pt-2 border-t border-purple-500/20 flex items-center justify-between text-[11px] text-slate-400">
+                <span>Model: ${m.aiMeta?.model || 'Gemini 2.0 Flash'}</span>
+                <button onclick="navigator.clipboard.writeText(\`${m.content.replace(/`/g, '\\`')}\`); window.TF_STATE.toast('Copied', 'AI suggestion copied to clipboard', 'info');" class="text-purple-300 hover:underline">Copy Response</button>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="flex items-start gap-3 ${isMe ? 'justify-end' : 'justify-start'}">
+            ${!isMe ? `<img src="${m.senderAvatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + m.senderName}" class="w-8 h-8 rounded-xl object-cover ring-1 ring-white/10 mt-1">` : ''}
+            
+            <div class="max-w-md ${isMe ? 'chat-bubble-me text-white p-3.5' : 'chat-bubble-other text-slate-200 p-3.5'}">
+              <div class="flex items-center justify-between gap-3 text-[10px] text-slate-300/80 mb-1">
+                <span class="font-bold">${isMe ? 'You' : m.senderName}</span>
+                <span>${m.timestamp ? m.timestamp.slice(11, 16) : ''}</span>
+              </div>
+              <div class="text-xs sm:text-sm leading-relaxed">${m.content}</div>
+            </div>
+
+            ${isMe ? `<img src="${currentUser.avatar}" class="w-8 h-8 rounded-xl object-cover ring-1 ring-indigo-500 mt-1">` : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function triggerAIPrompt(promptType) {
+      document.getElementById('typing-indicator').classList.remove('hidden');
+      await window.TF_CHAT.triggerAIAssistant(activeTeamId, promptType);
+      document.getElementById('typing-indicator').classList.add('hidden');
+      renderChat();
+    }
+
+    async function handleAIBotReply(promptText) {
+      document.getElementById('typing-indicator').classList.remove('hidden');
+      await window.TF_CHAT.triggerAIAssistant(activeTeamId, 'custom', promptText);
+      document.getElementById('typing-indicator').classList.add('hidden');
+      renderChat();
+    }
+  </script>
+</body>
+</html>

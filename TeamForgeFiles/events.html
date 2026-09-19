@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hackathons & Competitions — TeamForge</title>
+  <meta name="description" content="Discover premier student hackathons, coding challenges, cash bounties, and assemble winning teams.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased min-h-screen relative selection:bg-indigo-500 selection:text-white">
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Top Navbar -->
+  <div id="teamforge-navbar"></div>
+
+  <div class="max-w-7xl mx-auto flex">
+    <!-- Sidebar -->
+    <div id="teamforge-sidebar"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 lg:p-8 space-y-6 min-w-0">
+      
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="font-heading text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
+            🏆 Global Hackathons & Competitions Directory
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">
+            Discover upcoming hackathons, AI/ML challenges, and grant prizes. 1-click assemble your squad.
+          </p>
+        </div>
+
+        <button onclick="openAddEventModal()" class="btn-gradient self-start sm:self-auto px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/30 shrink-0">
+          <span>+ Post Hackathon / Event</span>
+        </button>
+      </div>
+
+      <!-- Events Grid -->
+      <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Populated dynamically -->
+      </div>
+    </main>
+  </div>
+
+  <div id="teamforge-footer"></div>
+
+  <!-- Scripts -->
+  <script src="js/env.js" onerror="this.remove()"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/ui.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.TF_UI.initPage('events');
+      renderEvents();
+    });
+
+    function renderEvents() {
+      const events = window.TF_STORE.getEvents();
+      const container = document.getElementById('events-grid');
+
+      if (events.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full glass-card p-12 rounded-3xl text-center border-dashed border-white/20 space-y-3">
+            <div class="text-4xl">🏆</div>
+            <h3 class="font-heading text-lg font-bold text-white">No upcoming hackathons listed yet</h3>
+            <p class="text-xs text-slate-400 max-w-md mx-auto">Be the first to publish an upcoming hackathon, coding competition, or tech fest!</p>
+            <div class="pt-2">
+              <button onclick="openAddEventModal()" class="btn-gradient px-4 py-2 rounded-xl text-xs font-bold">+ Post Hackathon Event</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = events.map(e => `
+        <div class="glass-card p-6 rounded-3xl border border-white/5 hover:border-amber-500/40 space-y-4 flex flex-col justify-between transition-all">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">📅 ${e.dates}</span>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-white/5 text-slate-300 font-semibold">${e.mode || 'Online'}</span>
+            </div>
+
+            <div>
+              <h2 class="font-heading text-xl font-bold text-white">${e.title}</h2>
+              <p class="text-xs text-indigo-300 font-medium mt-0.5">Organized by ${e.organizer || 'Student Committee'}</p>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">${e.description}</p>
+
+            <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs">
+              <span class="text-amber-300 font-bold font-mono">🏆 ${e.prize || 'Cash Prize & Swag'}</span>
+              <span class="text-slate-400">Deadline: <strong>${e.deadline || 'TBA'}</strong></span>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              ${(e.tags || []).map(t => `<span class="skill-badge">${t}</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-white/5 flex items-center justify-between gap-3">
+            <div class="text-xs text-slate-400">
+              👥 <strong>${e.activeTeamsCount || 1}</strong> squads assembling
+            </div>
+
+            <div class="flex items-center gap-2">
+              ${e.registrationLink && e.registrationLink !== '#' ? `
+                <a href="${e.registrationLink}" target="_blank" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-slate-200 hover:text-white font-medium">
+                  Official Site ↗
+                </a>
+              ` : ''}
+              <a href="ai-match.html?hackathon=${encodeURIComponent(e.title)}" class="btn-gradient px-4 py-2 rounded-xl text-xs font-bold shadow-md">
+                ✨ Form Squad with AI
+              </a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openAddEventModal() {
+      const user = window.TF_AUTH.getCurrentUser();
+      if (!user) {
+        window.TF_STATE.toast("Sign In Required", "Please sign in or create an account to post events.", "warning");
+        setTimeout(() => window.location.href = 'login.html', 800);
+        return;
+      }
+
+      window.TF_STATE.showModal(`
+        <div class="space-y-4">
+          <div>
+            <h3 class="font-heading text-lg font-bold text-white">Post New Hackathon / Competition</h3>
+            <p class="text-xs text-slate-400">Add an upcoming coding event or tech competition for students.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Event / Hackathon Name *</label>
+            <input type="text" id="event-title" required placeholder="e.g. Stanford AI Spring Hackathon 2026" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Organizer / Host</label>
+              <input type="text" id="event-organizer" placeholder="e.g. Stanford AI Club / Devpost" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Event Mode</label>
+              <select id="event-mode" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+                <option value="Online">Online / Virtual</option>
+                <option value="In-Person">In-Person</option>
+                <option value="Hybrid">Hybrid</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Event Dates</label>
+              <input type="text" id="event-dates" placeholder="e.g. Nov 12 - Nov 14, 2026" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Registration Deadline</label>
+              <input type="text" id="event-deadline" placeholder="e.g. Nov 05, 2026" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Prize Pool / Bounties</label>
+              <input type="text" id="event-prize" placeholder="e.g. $25,000 + Venture Grants" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Registration URL</label>
+              <input type="url" id="event-link" placeholder="https://hackathon.example.com" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Focus Tags (comma separated)</label>
+            <input type="text" id="event-tags" placeholder="e.g. AI/ML, Web3, Mobile, IoT, Cloud" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Description</label>
+            <textarea id="event-desc" rows="3" placeholder="Briefly describe the theme, challenges, and rules..." class="glass-input w-full px-3 py-2 rounded-xl text-xs"></textarea>
+          </div>
+
+          <button onclick="submitNewEvent()" class="btn-gradient w-full py-2.5 rounded-xl text-xs font-bold">
+            Publish Hackathon Event
+          </button>
+        </div>
+      `);
+    }
+
+    function submitNewEvent() {
+      const title = document.getElementById('event-title').value.trim();
+      const organizer = document.getElementById('event-organizer').value.trim();
+      const mode = document.getElementById('event-mode').value;
+      const dates = document.getElementById('event-dates').value.trim();
+      const deadline = document.getElementById('event-deadline').value.trim();
+      const prize = document.getElementById('event-prize').value.trim();
+      const link = document.getElementById('event-link').value.trim();
+      const tags = document.getElementById('event-tags').value;
+      const desc = document.getElementById('event-desc').value.trim();
+
+      if (!title || !desc) {
+        window.TF_STATE.toast("Required Fields", "Please enter at least event title and description.", "warning");
+        return;
+      }
+
+      window.TF_EVENTS.createEvent({
+        title: title,
+        organizer: organizer,
+        mode: mode,
+        dates: dates,
+        deadline: deadline,
+        prize: prize,
+        registrationLink: link,
+        tags: tags,
+        description: desc
+      });
+
+      window.TF_STATE.closeModal();
+      renderEvents();
+    }
+  </script>
+</body>
+</html>

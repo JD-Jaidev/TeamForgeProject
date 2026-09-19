@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Workspace — TeamForge</title>
+  <meta name="description" content="Collaborative team workspace with live Kanban tasks, guest contributor management, and resources.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased min-h-screen relative selection:bg-indigo-500 selection:text-white">
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Top Navbar -->
+  <div id="teamforge-navbar"></div>
+
+  <div class="max-w-7xl mx-auto flex">
+    <!-- Sidebar -->
+    <div id="teamforge-sidebar"></div>
+
+    <!-- Main Workspace Area -->
+    <main class="flex-1 p-4 lg:p-8 space-y-8 min-w-0">
+      
+      <!-- Team Header & Overview Banner -->
+      <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 relative overflow-hidden space-y-6 shadow-2xl">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div class="space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="team-domain-badge" class="text-xs font-mono font-bold text-indigo-400 uppercase tracking-wider px-2.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20"></span>
+              <span id="team-hackathon-badge" class="text-xs font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded"></span>
+            </div>
+
+            <h1 id="team-name" class="font-heading text-2xl sm:text-4xl font-black text-white"></h1>
+            <p id="team-tagline" class="text-sm text-slate-300 font-medium"></p>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="flex flex-wrap items-center gap-3 shrink-0">
+            <a id="team-chat-link" href="chat.html" class="btn-gradient px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/30">
+              <span>💬 Open Team Chat</span>
+            </a>
+            <button onclick="openInviteModal()" class="glass-card px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:text-white border border-white/10 hover:border-indigo-500/40 flex items-center gap-1.5">
+              <span>+ Add / Invite Peer</span>
+            </button>
+          </div>
+        </div>
+
+        <p id="team-desc" class="text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/5 pt-4 max-w-4xl"></p>
+
+        <!-- Required Skills & Open Roles -->
+        <div class="flex flex-wrap items-center gap-6 pt-2 border-t border-white/5 text-xs">
+          <div>
+            <span class="text-slate-500 mr-2 font-mono">Required Stack:</span>
+            <span id="team-skills-list" class="inline-flex flex-wrap gap-1.5"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Members & Guest Contributors Section -->
+      <div class="glass-panel p-6 rounded-3xl border border-white/10 space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <h2 class="font-heading text-lg font-bold text-white">Active Roster & Contributors</h2>
+            <span id="roster-count" class="text-xs px-2 py-0.5 rounded-full bg-white/5 text-slate-400 font-mono"></span>
+          </div>
+          <a href="discover.html" class="text-xs font-semibold text-indigo-400 hover:underline">Find More Members →</a>
+        </div>
+
+        <div id="roster-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated -->
+        </div>
+      </div>
+
+      <!-- Pending Join Requests (Visible to Owner) -->
+      <div id="team-requests-container" class="hidden glass-panel p-6 rounded-3xl border border-amber-500/30 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-heading text-base font-bold text-white flex items-center gap-2">
+            <span>📩 Pending Join Requests</span>
+          </h3>
+          <span class="text-xs text-amber-400 font-mono">Action Required</span>
+        </div>
+        <div id="team-requests-list" class="space-y-3"></div>
+      </div>
+
+      <!-- Kanban Task Board -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-heading text-xl font-bold text-white flex items-center gap-2">
+              <span>📋 Live Kanban Task Board</span>
+            </h2>
+            <p class="text-xs text-slate-400">Drag and drop cards or click to update task progress.</p>
+          </div>
+
+          <button onclick="openCreateTaskModal()" class="btn-gradient px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md">
+            <span>+ New Task</span>
+          </button>
+        </div>
+
+        <!-- 3 Kanban Columns -->
+        <div id="kanban-board" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          <!-- Column 1: To Do -->
+          <div class="glass-panel p-4 rounded-2xl border border-white/10 space-y-3 kanban-col" data-status="todo" id="col-todo">
+            <div class="flex items-center justify-between border-b border-white/5 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">To Do</span>
+              </div>
+              <span id="count-todo" class="text-xs font-mono font-bold text-slate-400">0</span>
+            </div>
+            <div class="space-y-3 kanban-drop-zone min-h-[300px]" id="tasks-todo"></div>
+          </div>
+
+          <!-- Column 2: In Progress -->
+          <div class="glass-panel p-4 rounded-2xl border border-indigo-500/30 space-y-3 kanban-col" data-status="in_progress" id="col-in_progress">
+            <div class="flex items-center justify-between border-b border-white/5 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-300 font-mono">In Progress</span>
+              </div>
+              <span id="count-in_progress" class="text-xs font-mono font-bold text-indigo-400">0</span>
+            </div>
+            <div class="space-y-3 kanban-drop-zone min-h-[300px]" id="tasks-in_progress"></div>
+          </div>
+
+          <!-- Column 3: Completed -->
+          <div class="glass-panel p-4 rounded-2xl border border-emerald-500/30 space-y-3 kanban-col" data-status="completed" id="col-completed">
+            <div class="flex items-center justify-between border-b border-white/5 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-300 font-mono">Completed</span>
+              </div>
+              <span id="count-completed" class="text-xs font-mono font-bold text-emerald-400">0</span>
+            </div>
+            <div class="space-y-3 kanban-drop-zone min-h-[300px]" id="tasks-completed"></div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="teamforge-footer"></div>
+
+  <!-- Scripts -->
+  <script src="js/env.js" onerror="this.remove()"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/teams.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/ui.js"></script>
+
+  <script>
+    let currentTeam = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.TF_UI.initPage('teams');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const teamId = urlParams.get('id') || 'team_neurosync_01';
+
+      currentTeam = window.TF_STORE.getTeamById(teamId);
+      if (!currentTeam) {
+        window.location.href = 'teams.html';
+        return;
+      }
+
+      renderWorkspace();
+      setupKanban();
+    });
+
+    function renderWorkspace() {
+      const t = currentTeam;
+      const currentUser = window.TF_AUTH.getCurrentUser();
+      const isOwner = currentUser && currentUser.id === t.ownerId;
+
+      document.getElementById('team-name').textContent = t.name;
+      document.getElementById('team-tagline').textContent = t.tagline || "";
+      document.getElementById('team-desc').textContent = t.description;
+      document.getElementById('team-domain-badge').textContent = t.domain;
+      document.getElementById('team-hackathon-badge').textContent = t.hackathonTarget || "Hackathon Project";
+      document.getElementById('team-chat-link').href = `chat.html?team=${t.id}`;
+
+      // Skills
+      document.getElementById('team-skills-list').innerHTML = (t.requiredSkills || []).map(s => `
+        <span class="skill-badge">${s}</span>
+      `).join('');
+
+      // Roster (Core + Guests)
+      const rosterContainer = document.getElementById('roster-grid');
+      const allMembers = [];
+
+      (t.members || []).forEach(m => {
+        const student = window.TF_STORE.getStudentById(m.userId);
+        if (student) allMembers.push({ student, role: m.role, type: 'core' });
+      });
+
+      (t.guests || []).forEach(g => {
+        const student = window.TF_STORE.getStudentById(g.userId);
+        if (student) allMembers.push({ student, role: g.role, type: 'guest', notes: g.notes });
+      });
+
+      document.getElementById('roster-count').textContent = `${allMembers.length}/${t.maxMembers} Members`;
+
+      rosterContainer.innerHTML = allMembers.map(item => {
+        const s = item.student;
+        const isGuest = item.type === 'guest';
+
+        return `
+          <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-3 flex flex-col justify-between">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <img src="${s.avatar}" class="w-11 h-11 rounded-xl object-cover ring-2 ${isGuest ? 'ring-amber-500/50' : 'ring-indigo-500/50'}">
+                <div>
+                  <a href="profile.html?id=${s.id}" class="font-bold text-sm text-white hover:text-indigo-400">${s.name}</a>
+                  <div class="text-[11px] text-slate-400">${s.college}</div>
+                </div>
+              </div>
+
+              ${isGuest ? `
+                <span class="badge-guest px-2 py-0.5 rounded text-[10px] font-bold">Guest Specialist</span>
+              ` : `
+                <span class="badge-lead px-2 py-0.5 rounded text-[10px] font-bold">Core</span>
+              `}
+            </div>
+
+            <div class="text-xs font-semibold text-indigo-300">
+              Role: ${item.role}
+            </div>
+
+            ${isGuest && item.notes ? `<div class="text-[10px] text-slate-400 italic">"${item.notes}"</div>` : ''}
+
+            <div class="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
+              <span class="text-amber-400 font-bold">★ ${s.rating}</span>
+              <div class="flex items-center gap-2">
+                <a href="profile.html?id=${s.id}" class="text-slate-400 hover:text-white">Profile</a>
+                ${isOwner && s.id !== currentUser.id ? `
+                  <button onclick="removeRosterMember('${s.id}')" class="text-rose-400 hover:text-rose-300 text-xs">Remove</button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Join Requests (Owner only)
+      const pendingReqs = (t.joinRequests || []).filter(r => r.status === 'pending');
+      const reqsBox = document.getElementById('team-requests-container');
+      const reqsList = document.getElementById('team-requests-list');
+
+      if (isOwner && pendingReqs.length > 0) {
+        reqsBox.classList.remove('hidden');
+        reqsList.innerHTML = pendingReqs.map(r => `
+          <div class="glass-panel p-3 rounded-xl border border-white/10 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <img src="${r.userAvatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + r.userName}" class="w-9 h-9 rounded-lg object-cover">
+              <div>
+                <div class="text-xs font-bold text-white">${r.userName} (${r.userRole || 'Student'})</div>
+                <div class="text-[11px] text-slate-400">"${r.message}"</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="window.TF_TEAMS.handleJoinRequest('${t.id}', '${r.id}', 'accept'); renderWorkspace();" class="px-3 py-1 rounded-lg bg-emerald-600/30 text-emerald-300 text-xs font-bold border border-emerald-500/30">Accept</button>
+              <button onclick="window.TF_TEAMS.handleJoinRequest('${t.id}', '${r.id}', 'reject'); renderWorkspace();" class="px-2.5 py-1 rounded-lg bg-rose-600/20 text-rose-300 text-xs font-bold border border-rose-500/30">Decline</button>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        reqsBox.classList.add('hidden');
+      }
+
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const tasks = window.TF_STORE.getTasks(currentTeam.id);
+      
+      const todo = tasks.filter(t => t.status === 'todo');
+      const inProgress = tasks.filter(t => t.status === 'in_progress');
+      const completed = tasks.filter(t => t.status === 'completed');
+
+      document.getElementById('count-todo').textContent = todo.length;
+      document.getElementById('count-in_progress').textContent = inProgress.length;
+      document.getElementById('count-completed').textContent = completed.length;
+
+      const renderCol = (list) => list.map(t => {
+        const assignee = t.assignedTo ? window.TF_STORE.getStudentById(t.assignedTo) : null;
+        
+        const priorityColors = {
+          low: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+          medium: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20',
+          high: 'bg-amber-500/10 text-amber-300 border-amber-500/20',
+          urgent: 'bg-rose-500/10 text-rose-300 border-rose-500/20'
+        };
+
+        return `
+          <div class="glass-card p-3.5 rounded-xl border border-white/5 space-y-2.5 kanban-card" draggable="true" ondragstart="dragStart(event, '${t.id}')">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded border ${priorityColors[t.priority] || priorityColors.medium}">
+                ${t.priority}
+              </span>
+              <button onclick="window.TF_TASKS.deleteTask('${t.id}'); renderTasks();" class="text-slate-500 hover:text-rose-400 text-xs">✕</button>
+            </div>
+
+            <div class="font-bold text-xs text-white">${t.title}</div>
+            ${t.description ? `<p class="text-[11px] text-slate-400 leading-relaxed">${t.description}</p>` : ''}
+
+            <div class="pt-2 border-t border-white/5 flex items-center justify-between text-[11px]">
+              ${assignee ? `
+                <div class="flex items-center gap-1.5 text-slate-300">
+                  <img src="${assignee.avatar}" class="w-4 h-4 rounded-full object-cover">
+                  <span class="truncate">${assignee.name.split(' ')[0]}</span>
+                </div>
+              ` : `<span class="text-slate-500 italic">Unassigned</span>`}
+
+              ${t.dueDate ? `<span class="text-slate-500 font-mono text-[10px]">📅 ${t.dueDate.slice(5)}</span>` : ''}
+            </div>
+
+            <!-- Fast Status Advance buttons on mobile -->
+            <div class="flex items-center justify-end gap-1 pt-1 md:hidden">
+              ${t.status !== 'todo' ? `<button onclick="window.TF_TASKS.updateTaskStatus('${t.id}', 'todo'); renderTasks();" class="text-[10px] px-2 py-0.5 rounded bg-white/5">← To Do</button>` : ''}
+              ${t.status !== 'in_progress' ? `<button onclick="window.TF_TASKS.updateTaskStatus('${t.id}', 'in_progress'); renderTasks();" class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">In Progress</button>` : ''}
+              ${t.status !== 'completed' ? `<button onclick="window.TF_TASKS.updateTaskStatus('${t.id}', 'completed'); renderTasks();" class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">✓ Done</button>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('tasks-todo').innerHTML = renderCol(todo);
+      document.getElementById('tasks-in_progress').innerHTML = renderCol(inProgress);
+      document.getElementById('tasks-completed').innerHTML = renderCol(completed);
+    }
+
+    function setupKanban() {
+      window.TF_TASKS.setupDragAndDrop('kanban-board', () => {
+        renderTasks();
+      });
+    }
+
+    function dragStart(e, taskId) {
+      e.dataTransfer.setData('text/plain', taskId);
+    }
+
+    function openCreateTaskModal() {
+      const members = currentTeam.members.map(m => window.TF_STORE.getStudentById(m.userId)).filter(Boolean);
+
+      window.TF_STATE.showModal(`
+        <div class="space-y-4">
+          <h3 class="font-heading text-lg font-bold text-white">Create New Team Task</h3>
+          
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Task Title *</label>
+            <input type="text" id="task-title" required placeholder="e.g. Implement WebSocket streaming pipeline" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Description</label>
+            <textarea id="task-desc" rows="2" placeholder="Detail the technical deliverable..." class="glass-input w-full px-3 py-2 rounded-xl text-xs"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Assignee</label>
+              <select id="task-assignee" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+                <option value="">Unassigned</option>
+                ${members.map(m => `<option value="${m.id}">${m.name} (${m.role.split(' ')[0]})</option>`).join('')}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Priority</label>
+              <select id="task-priority" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="submitTask()" class="btn-gradient w-full py-2.5 rounded-xl text-xs font-bold">
+            Add Task to Board
+          </button>
+        </div>
+      `);
+    }
+
+    function submitTask() {
+      const title = document.getElementById('task-title').value.trim();
+      const desc = document.getElementById('task-desc').value.trim();
+      const assignee = document.getElementById('task-assignee').value;
+      const priority = document.getElementById('task-priority').value;
+
+      if (!title) return;
+
+      window.TF_TASKS.createTask(currentTeam.id, title, desc, assignee, priority);
+      window.TF_STATE.closeModal();
+      renderTasks();
+    }
+
+    function openInviteModal() {
+      const allStudents = window.TF_STORE.getStudents();
+      const existingIds = new Set([
+        ...currentTeam.members.map(m => m.userId),
+        ...(currentTeam.guests || []).map(g => g.userId)
+      ]);
+      const availableStudents = allStudents.filter(s => !existingIds.has(s.id));
+
+      window.TF_STATE.showModal(`
+        <div class="space-y-4">
+          <h3 class="font-heading text-lg font-bold text-white">Add Teammate to ${currentTeam.name}</h3>
+          
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Select Candidate</label>
+            <select id="direct-invite-student" class="glass-input w-full px-3 py-2 rounded-xl text-xs">
+              ${availableStudents.map(s => `<option value="${s.id}">${s.name} — ${s.role} (${s.skills.slice(0, 3).join(', ')})</option>`).join('')}
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Role Type</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="glass-card p-2 rounded-xl border border-white/10 flex items-center gap-2 text-xs cursor-pointer">
+                <input type="radio" name="invite-type" value="core" checked class="text-indigo-600">
+                <span>Core Member</span>
+              </label>
+              <label class="glass-card p-2 rounded-xl border border-white/10 flex items-center gap-2 text-xs cursor-pointer">
+                <input type="radio" name="invite-type" value="guest" class="text-amber-500">
+                <span>Guest Specialist</span>
+              </label>
+            </div>
+          </div>
+
+          <button onclick="submitDirectInvite()" class="btn-gradient w-full py-2.5 rounded-xl text-xs font-bold">
+            Add to Team
+          </button>
+        </div>
+      `);
+    }
+
+    function submitDirectInvite() {
+      const studentId = document.getElementById('direct-invite-student').value;
+      const isGuest = document.querySelector('input[name="invite-type"]:checked').value === 'guest';
+
+      window.TF_TEAMS.inviteStudent(currentTeam.id, studentId, isGuest);
+      window.TF_STATE.closeModal();
+      currentTeam = window.TF_STORE.getTeamById(currentTeam.id);
+      renderWorkspace();
+    }
+
+    function removeRosterMember(userId) {
+      if (confirm("Remove this member from team roster?")) {
+        window.TF_TEAMS.removeMember(currentTeam.id, userId);
+        currentTeam = window.TF_STORE.getTeamById(currentTeam.id);
+        renderWorkspace();
+      }
+    }
+  </script>
+</body>
+</html>

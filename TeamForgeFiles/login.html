@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — TeamForge</title>
+  <meta name="description" content="Sign in to your TeamForge account to collaborate and find hackathon teammates.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased min-h-screen flex flex-col justify-between relative selection:bg-indigo-500 selection:text-white">
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Header -->
+  <header class="p-6 flex items-center justify-between max-w-7xl mx-auto w-full relative z-10">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold">
+        ⚡
+      </div>
+      <span class="font-heading font-black text-xl text-white">TeamForge</span>
+    </a>
+    <a href="signup.html" class="text-xs font-semibold text-slate-400 hover:text-indigo-400">
+      Need an account? <span class="text-indigo-400 underline ml-1">Sign Up</span>
+    </a>
+  </header>
+
+  <!-- Login Form Container -->
+  <main class="flex-1 flex items-center justify-center p-4 relative z-10 my-8">
+    <div class="w-full max-w-md glass-panel p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6">
+      <div class="text-center space-y-1">
+        <h1 class="font-heading text-2xl font-black text-white">Welcome Back</h1>
+        <p class="text-xs text-slate-400">Sign in to your TeamForge workspace & teams</p>
+      </div>
+
+      <!-- Standard Form -->
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Email Address</label>
+          <input type="email" id="email" required placeholder="you@university.edu" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm placeholder-slate-500">
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-semibold text-slate-300">Password</label>
+            <a href="#" onclick="alert('Password reset link has been dispatched to your email.');" class="text-xs text-indigo-400 hover:underline">Forgot?</a>
+          </div>
+          <input type="password" id="password" required placeholder="Enter your password" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm placeholder-slate-500">
+        </div>
+
+        <button type="submit" class="btn-gradient w-full py-3 rounded-xl font-bold text-sm shadow-lg shadow-indigo-600/30">
+          Sign In
+        </button>
+      </form>
+
+      <!-- Sign Up link -->
+      <div class="text-center pt-2 border-t border-white/5">
+        <p class="text-xs text-slate-400">
+          New to TeamForge? 
+          <a href="signup.html" class="text-indigo-400 font-bold hover:underline ml-1">Create an account →</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="p-6 text-center text-xs text-slate-500 relative z-10">
+    &copy; 2026 TeamForge. Built for ambitious student teams.
+  </footer>
+
+  <script src="js/env.js" onerror="this.remove()"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/state.js"></script>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      const result = window.TF_AUTH.login(email, password);
+      if (result.success) {
+        window.TF_STATE.toast("Welcome back!", `Signed in as ${result.user.name}`, "success");
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 500);
+      } else {
+        window.TF_STATE.toast("Login failed", result.message, "error");
+      }
+    });
+  </script>
+</body>
+</html>

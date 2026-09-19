@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeamForge — Build the right team. Build the right idea.</title>
+  <meta name="description" content="AI-powered student collaboration and team formation platform for hackathons, startups, and academic projects.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Design System Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased min-h-screen relative selection:bg-indigo-500 selection:text-white">
+
+  <!-- Ambient Glow Elements -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+  <div class="ambient-glow-3"></div>
+
+  <!-- Main Top Navbar -->
+  <div id="teamforge-navbar"></div>
+
+  <!-- Hero Section -->
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24">
+    <div class="text-center max-w-4xl mx-auto space-y-6">
+      <!-- Announcement Pill -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card border border-indigo-500/30 text-xs font-semibold text-indigo-300">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+        <span>TeamForge AI 2.0 is Live</span>
+        <span class="text-slate-500">•</span>
+        <span class="text-slate-300">Intelligent Team Formation & Hackathon Matching</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="font-heading font-black text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.1]">
+        Build the <span class="text-gradient-primary">right team.</span><br>
+        Build the <span class="text-gradient-cyan">right idea.</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        The premier student collaboration hub for hackathons, engineering competitions, and startup projects. Powered by AI skill-gap matching, real-time workspaces, and verified reputation credits.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+        <a href="signup.html" class="btn-gradient w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-base shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 group">
+          <span>Find Teammates Now</span>
+          <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+        <a href="ai-match.html" class="glass-card w-full sm:w-auto px-7 py-3.5 rounded-xl font-semibold text-base text-slate-200 hover:text-white border border-white/10 hover:border-indigo-500/40 flex items-center justify-center gap-2">
+          <span class="text-cyan-400">✨</span>
+          <span>Try AI Match Studio</span>
+        </a>
+      </div>
+
+      <!-- Quick Platform Stats -->
+      <div class="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <div class="glass-card p-4 rounded-2xl text-center">
+          <div class="font-heading text-2xl sm:text-3xl font-black text-indigo-400">2,400+</div>
+          <div class="text-xs text-slate-400 font-medium mt-1">Active Student Builders</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl text-center">
+          <div class="font-heading text-2xl sm:text-3xl font-black text-cyan-400">98.4%</div>
+          <div class="text-xs text-slate-400 font-medium mt-1">AI Skill-Gap Accuracy</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl text-center">
+          <div class="font-heading text-2xl sm:text-3xl font-black text-amber-400">420+</div>
+          <div class="text-xs text-slate-400 font-medium mt-1">Hackathons Won</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl text-center">
+          <div class="font-heading text-2xl sm:text-3xl font-black text-emerald-400">100%</div>
+          <div class="text-xs text-slate-400 font-medium mt-1">Verified Peer Reviews</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Interactive AI Teaser Widget -->
+    <div class="mt-20 glass-panel rounded-3xl p-6 sm:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div class="space-y-4 max-w-xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-mono font-medium">
+            <span>⚡ Interactive Live Demonstration</span>
+          </div>
+          <h2 class="font-heading text-2xl sm:text-4xl font-extrabold text-white">
+            See how TeamForge AI matches the ideal squad in seconds
+          </h2>
+          <p class="text-slate-400 text-sm sm:text-base">
+            Type any project concept or hackathon prompt. Our AI instantly extracts required tech stacks, identifies complementary peers, and details transparent matching rationale.
+          </p>
+
+          <!-- Input Demo -->
+          <div class="space-y-2 pt-2">
+            <div class="flex gap-2">
+              <input id="demo-prompt-input" type="text" value="Build an AI-powered healthcare chatbot with real-time vitals sync and WebGL 3D UI" class="glass-input flex-1 px-4 py-3 rounded-xl text-sm border-white/10 placeholder-slate-500">
+              <button id="demo-analyze-btn" class="btn-gradient px-5 py-3 rounded-xl font-bold text-sm shrink-0 flex items-center gap-2">
+                <span>✨ Analyze</span>
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2 text-xs text-slate-400">
+              <span>Try:</span>
+              <button onclick="document.getElementById('demo-prompt-input').value='Autonomous drone vision pipeline for precision agriculture'; document.getElementById('demo-analyze-btn').click();" class="text-indigo-400 hover:underline">AgriVision Drone</button>
+              <span>•</span>
+              <button onclick="document.getElementById('demo-prompt-input').value='Zero-knowledge DeFi lending protocol on Ethereum'; document.getElementById('demo-analyze-btn').click();" class="text-indigo-400 hover:underline">ZK-DeFi Protocol</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Result Card -->
+        <div id="demo-results-card" class="w-full lg:w-[460px] glass-card p-6 rounded-2xl border border-indigo-500/30 bg-slate-900/80 space-y-4">
+          <div class="flex items-center justify-between border-b border-white/5 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-indigo-600/30 text-indigo-300 flex items-center justify-center text-xs">✨</div>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">AI Skill Breakdown</span>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">98% Match Potential</span>
+          </div>
+
+          <div id="demo-extracted-skills" class="flex flex-wrap gap-1.5">
+            <span class="skill-badge">Python</span>
+            <span class="skill-badge">PyTorch</span>
+            <span class="skill-badge">NLP</span>
+            <span class="skill-badge">Three.js</span>
+            <span class="skill-badge">UI/UX Design</span>
+            <span class="skill-badge">FastAPI</span>
+          </div>
+
+          <!-- Top Recommended Match Preview -->
+          <div id="demo-top-candidate" class="glass-panel p-3.5 rounded-xl border border-white/5 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80" alt="Candidate" class="w-11 h-11 rounded-xl object-cover ring-2 ring-indigo-500/40">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-bold text-white">Sarah Lin</span>
+                <span class="text-xs font-mono font-bold text-cyan-400">97% Match</span>
+              </div>
+              <div class="text-xs text-indigo-300">UI/UX & Frontend Architect • MIT</div>
+              <div class="text-[11px] text-slate-400 truncate mt-0.5">Fills WebGL 3D UI & Three.js skill gap</div>
+            </div>
+          </div>
+
+          <a href="ai-match.html" class="block text-center py-2 text-xs font-bold text-indigo-400 hover:text-indigo-300 border-t border-white/5 pt-3">
+            Open Full AI Matching Studio →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Features Grid -->
+    <section class="mt-28 space-y-12">
+      <div class="text-center space-y-3">
+        <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-white">
+          Everything ambitious students need to win & ship
+        </h2>
+        <p class="text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+          From brainstorming breakthrough ideas to collaborating in real-time workspaces and hiring specialists.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Feature 1 -->
+        <div class="glass-card p-6 rounded-2xl space-y-4 border border-white/5">
+          <div class="w-12 h-12 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-xl font-bold border border-indigo-500/20">
+            🧠
+          </div>
+          <h3 class="font-heading text-lg font-bold text-white">AI Skill Gap Diagnostics</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Our AI analyzes your team roster, highlights complementary technical competencies, and recommends exact peers to cover blindspots.
+          </p>
+          <a href="ai-match.html" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+            Explore AI Engine →
+          </a>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass-card p-6 rounded-2xl space-y-4 border border-white/5">
+          <div class="w-12 h-12 rounded-xl bg-cyan-600/20 text-cyan-400 flex items-center justify-center text-xl font-bold border border-cyan-500/20">
+            🤝
+          </div>
+          <h3 class="font-heading text-lg font-bold text-white">Guest Specialists & Opportunities</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Need a smart contract auditor for 48 hours? Invite verified guest contributors to assist without surrendering full team control.
+          </p>
+          <a href="opportunities.html" class="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+            Browse Opportunities →
+          </a>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass-card p-6 rounded-2xl space-y-4 border border-white/5">
+          <div class="w-12 h-12 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center text-xl font-bold border border-purple-500/20">
+            💬
+          </div>
+          <h3 class="font-heading text-lg font-bold text-white">Realtime Chat & @ForgeAI</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Instant WebSocket team messaging with a built-in AI Idea Generator to produce project architectures, pitch decks, and mockups.
+          </p>
+          <a href="chat.html" class="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1">
+            Open Chat Studio →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Call to Action -->
+    <div class="mt-28 glass-panel rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden border border-indigo-500/30">
+      <div class="max-w-2xl mx-auto space-y-6">
+        <h2 class="font-heading text-3xl sm:text-5xl font-black text-white">
+          Ready to form your dream hackathon squad?
+        </h2>
+        <p class="text-slate-300 text-base">
+          Join thousands of university engineers, designers, and innovators building the next generation of products today.
+        </p>
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="signup.html" class="btn-gradient px-8 py-3.5 rounded-xl font-bold text-base shadow-xl">
+            Create Free Account
+          </a>
+          <a href="discover.html" class="glass-card px-8 py-3.5 rounded-xl font-semibold text-slate-300 hover:text-white border border-white/10">
+            Browse Student Directory
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer Container -->
+  <div id="teamforge-footer"></div>
+
+  <!-- Scripts -->
+  <script src="js/env.js" onerror="this.remove()"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ai-service.js"></script>
+  <script src="js/matching.js"></script>
+  <script src="js/ui.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.TF_UI.initPage('home');
+
+      // Demo Live Analyze Button Handler
+      const demoBtn = document.getElementById('demo-analyze-btn');
+      const demoInput = document.getElementById('demo-prompt-input');
+      const skillsContainer = document.getElementById('demo-extracted-skills');
+      const candidateContainer = document.getElementById('demo-top-candidate');
+
+      if (demoBtn && demoInput) {
+        demoBtn.addEventListener('click', async () => {
+          const prompt = demoInput.value.trim();
+          if (!prompt) return;
+
+          demoBtn.disabled = true;
+          demoBtn.innerHTML = '<span>⏳ Thinking...</span>';
+
+          try {
+            const results = await window.TF_MATCHER.matchForProject({ prompt });
+            
+            // Render extracted skills
+            skillsContainer.innerHTML = results.requiredSkills.map(s => `<span class="skill-badge">${s}</span>`).join('');
+            
+            // Render top match
+            if (results.candidates && results.candidates.length > 0) {
+              const top = results.candidates[0];
+              candidateContainer.innerHTML = `
+                <img src="${top.student.avatar}" alt="${top.student.name}" class="w-11 h-11 rounded-xl object-cover ring-2 ring-indigo-500/40">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-white">${top.student.name}</span>
+                    <span class="text-xs font-mono font-bold text-cyan-400">${top.matchPercentage}% Match</span>
+                  </div>
+                  <div class="text-xs text-indigo-300">${top.student.role} • ${top.student.college}</div>
+                  <div class="text-[11px] text-slate-400 truncate mt-0.5">${top.primaryReason}</div>
+                </div>
+              `;
+            }
+          } catch (e) {
+            console.error(e);
+          } finally {
+            demoBtn.disabled = false;
+            demoBtn.innerHTML = '<span>✨ Analyze</span>';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

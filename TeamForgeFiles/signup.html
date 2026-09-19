@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up & Student Onboarding — TeamForge</title>
+  <meta name="description" content="Create your student profile and find high-performing teammates for hackathons and projects.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased min-h-screen flex flex-col justify-between relative selection:bg-indigo-500 selection:text-white">
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-3"></div>
+
+  <!-- Header -->
+  <header class="p-6 flex items-center justify-between max-w-7xl mx-auto w-full relative z-10">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold">
+        ⚡
+      </div>
+      <span class="font-heading font-black text-xl text-white">TeamForge</span>
+    </a>
+    <a href="login.html" class="text-xs font-semibold text-slate-400 hover:text-indigo-400">
+      Already have an account? <span class="text-indigo-400 underline ml-1">Sign In</span>
+    </a>
+  </header>
+
+  <!-- Onboarding Form Container -->
+  <main class="flex-1 flex items-center justify-center p-4 relative z-10 my-6">
+    <div class="w-full max-w-2xl glass-panel p-8 sm:p-10 rounded-3xl border border-white/10 shadow-2xl space-y-8">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-300 text-xs font-mono mb-2 border border-indigo-500/20">
+          <span>🚀 Step 1 of 1: Student Profile Creation</span>
+        </div>
+        <h1 class="font-heading text-3xl font-black text-white">Join the TeamForge Network</h1>
+        <p class="text-sm text-slate-400">Build your profile so our AI can match you with winning hackathon squads.</p>
+      </div>
+
+      <form id="signup-form" class="space-y-6">
+        <!-- Basic Info -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Full Name *</label>
+            <input type="text" id="name" required placeholder="e.g. Maya Lin" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">University / College *</label>
+            <input type="text" id="college" required placeholder="e.g. Stanford / IIT / MIT" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Email Address *</label>
+            <input type="email" id="email" required placeholder="maya@university.edu" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Password *</label>
+            <input type="password" id="password" required placeholder="Create secure password" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+          </div>
+        </div>
+
+        <!-- Role & Experience -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Primary Role *</label>
+            <select id="role" class="glass-input w-full px-3 py-2.5 rounded-xl text-sm">
+              <option value="AI/ML Engineer">AI/ML Engineer</option>
+              <option value="Full Stack Developer">Full Stack Developer</option>
+              <option value="UI/UX & Frontend Lead">UI/UX & Frontend</option>
+              <option value="Backend & Systems Lead">Backend & Systems</option>
+              <option value="Mobile App Developer">Mobile App Dev</option>
+              <option value="Web3 & Smart Contracts">Web3 & Solidity</option>
+              <option value="Computer Vision Specialist">Computer Vision</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Experience Level</label>
+            <select id="experience" class="glass-input w-full px-3 py-2.5 rounded-xl text-sm">
+              <option value="Beginner (1 yr)">Beginner (1 yr)</option>
+              <option value="Intermediate (2 yrs)" selected>Intermediate (2 yrs)</option>
+              <option value="Advanced (3+ yrs)">Advanced (3+ yrs)</option>
+              <option value="Expert / Hackathon Champion">Hackathon Champion</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Weekly Availability</label>
+            <select id="availability" class="glass-input w-full px-3 py-2.5 rounded-xl text-sm">
+              <option value="5-10 hrs/week">5-10 hrs/week</option>
+              <option value="15-20 hrs/week" selected>15-20 hrs/week</option>
+              <option value="20+ hrs/week">20+ hrs/week (Full Sprint)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Skills & Tech Stack -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Skills & Technologies (comma separated) *</label>
+          <input type="text" id="skills" required placeholder="e.g. Python, React, TypeScript, FastAPI, PyTorch, Figma" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+          <p class="text-[11px] text-slate-500 mt-1">Our AI uses these exact tags to match you with complementary teammates.</p>
+        </div>
+
+        <!-- Bio -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Short Bio / Pitch</label>
+          <textarea id="bio" rows="2" placeholder="Tell other students what you love building and your hackathon goals..." class="glass-input w-full px-4 py-2 rounded-xl text-sm"></textarea>
+        </div>
+
+        <!-- Portfolio & Socials -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">GitHub Profile URL</label>
+            <input type="url" id="github" placeholder="https://github.com/username" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">LinkedIn Profile URL</label>
+            <input type="url" id="linkedin" placeholder="https://linkedin.com/in/username" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-gradient w-full py-3.5 rounded-xl font-bold text-base shadow-xl shadow-indigo-600/30">
+          Create Account & Enter Platform
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="p-6 text-center text-xs text-slate-500 relative z-10">
+    &copy; 2026 TeamForge. Built for ambitious student teams.
+  </footer>
+
+  <script src="js/env.js" onerror="this.remove()"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/state.js"></script>
+
+  <script>
+    document.getElementById('signup-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const profileData = {
+        name: document.getElementById('name').value.trim(),
+        college: document.getElementById('college').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        role: document.getElementById('role').value,
+        experience: document.getElementById('experience').value,
+        availability: document.getElementById('availability').value,
+        skills: document.getElementById('skills').value,
+        bio: document.getElementById('bio').value.trim(),
+        github: document.getElementById('github').value.trim(),
+        linkedin: document.getElementById('linkedin').value.trim()
+      };
+
+      const result = window.TF_AUTH.signup(profileData);
+      if (result.success) {
+        window.TF_STATE.toast("Account Created! 🎉", `Welcome to TeamForge, ${result.user.name}! 200 reputation credits awarded.`, "success");
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 600);
+      }
+    });
+  </script>
+</body>
+</html>

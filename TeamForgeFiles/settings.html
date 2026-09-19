@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings & API Integrations — TeamForge</title>
+  <meta name="description" content="Configure Supabase and OpenRouter API credentials or manage platform preferences.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased min-h-screen relative selection:bg-indigo-500 selection:text-white">
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Top Navbar -->
+  <div id="teamforge-navbar"></div>
+
+  <div class="max-w-7xl mx-auto flex">
+    <!-- Sidebar -->
+    <div id="teamforge-sidebar"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 lg:p-8 space-y-6 min-w-0 max-w-4xl">
+      <div>
+        <h1 class="font-heading text-2xl sm:text-3xl font-black text-white">
+          Platform Settings & API Configurations
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Connect your live Supabase backend and OpenRouter API keys or use local demo mode.
+        </p>
+      </div>
+
+      <!-- Live Backend & AI Config Card -->
+      <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 space-y-6 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-indigo-600/20 text-indigo-300 flex items-center justify-center font-bold">⚡</span>
+            <div>
+              <h2 class="font-heading text-base font-bold text-white">Backend & AI Credentials</h2>
+              <p class="text-xs text-slate-400">All credentials are stored securely in your browser.</p>
+            </div>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+            ● Ready
+          </span>
+        </div>
+
+        <form id="settings-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Supabase Project URL</label>
+            <input type="url" id="supabase-url" placeholder="https://your-project.supabase.co" class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Supabase Anon Key</label>
+            <input type="password" id="supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono">
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-slate-300">OpenRouter API Key (Optional)</label>
+              <a href="https://openrouter.ai/keys" target="_blank" class="text-xs text-indigo-400 hover:underline">Get Key ↗</a>
+            </div>
+            <input type="password" id="openrouter-key" placeholder="sk-or-v1-..." class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono">
+            <p class="text-[11px] text-slate-500 mt-1">Direct client-side key. Stored only in your local browser.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Supabase Edge Function URL (Optional)</label>
+            <input type="url" id="edge-function-url" placeholder="https://your-project.supabase.co/functions/v1/ai-assistant" class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono">
+            <p class="text-[11px] text-slate-500 mt-1">If using Supabase Edge Functions to securely proxy AI requests without exposing keys.</p>
+          </div>
+
+          <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
+            <button type="submit" class="btn-gradient px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30">
+              Save Settings
+            </button>
+
+            <button type="button" onclick="testAIConnection()" class="glass-card px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:text-white border border-white/10 hover:border-cyan-500/40">
+              ✨ Test AI Connection
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Demo Data Reset & Diagnostics -->
+      <div class="glass-panel p-6 rounded-3xl border border-white/10 space-y-4">
+        <h3 class="font-heading text-base font-bold text-white flex items-center gap-2">
+          <span>🛠️ Testing & Demo Utilities</span>
+        </h3>
+        <p class="text-xs text-slate-400">
+          Reset local workspace data back to initial seed dataset (students, teams, reviews, and tasks).
+        </p>
+
+        <div class="pt-2 flex items-center gap-3">
+          <button onclick="resetData()" class="px-4 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-xs font-bold border border-rose-500/30">
+            ↺ Reset Seed Demo Data
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="teamforge-footer"></div>
+
+  <!-- Scripts -->
+  <script src="js/env.js" onerror="this.remove()"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ai-service.js"></script>
+  <script src="js/ui.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.TF_UI.initPage('settings');
+
+      document.getElementById('supabase-url').value = window.TF_CONFIG.SUPABASE_URL || '';
+      document.getElementById('supabase-key').value = window.TF_CONFIG.SUPABASE_ANON_KEY || '';
+      document.getElementById('openrouter-key').value = window.TF_CONFIG.OPENROUTER_API_KEY || '';
+      document.getElementById('edge-function-url').value = window.TF_CONFIG.EDGE_FUNCTION_URL || '';
+
+      document.getElementById('settings-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const url = document.getElementById('supabase-url').value.trim();
+        const key = document.getElementById('supabase-key').value.trim();
+        const orKey = document.getElementById('openrouter-key').value.trim();
+        const edgeUrl = document.getElementById('edge-function-url').value.trim();
+
+        window.TF_CONFIG.saveCredentials(url, key, orKey, edgeUrl);
+        window.TF_STATE.toast("Settings Saved", "Your API credentials and configuration were updated.", "success");
+      });
+    });
+
+    async function testAIConnection() {
+      window.TF_STATE.toast("Testing AI...", "Dispatching test prompt to AI engine.", "ai");
+      try {
+        const response = await window.TF_AI.generateIdea("Artificial Intelligence", "Quick ping test");
+        window.TF_STATE.toast("AI Connected! ✨", "Successfully received AI response.", "success");
+      } catch (err) {
+        window.TF_STATE.toast("AI Test Failed", err.message, "error");
+      }
+    }
+
+    function resetData() {
+      if (confirm("Reset all local data to original demo dataset?")) {
+        window.TF_STORE.resetDemoData();
+        window.TF_STATE.toast("Data Reset", "Demo dataset restored.", "info");
+        setTimeout(() => window.location.reload(), 500);
+      }
+    }
+  </script>
+</body>
+</html>

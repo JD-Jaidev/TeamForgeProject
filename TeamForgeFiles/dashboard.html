@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — TeamForge</title>
+  <meta name="description" content="Manage your teams, review AI teammates recommendations, and track tasks.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased min-h-screen relative selection:bg-indigo-500 selection:text-white">
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Top Navbar -->
+  <div id="teamforge-navbar"></div>
+
+  <div class="max-w-7xl mx-auto flex">
+    <!-- Sidebar -->
+    <div id="teamforge-sidebar"></div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 lg:p-8 space-y-8 min-w-0">
+      
+      <!-- Welcome User Hero Banner -->
+      <div id="user-banner" class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
+        <div class="flex items-center gap-4">
+          <img id="user-avatar" src="" alt="Avatar" class="w-16 h-16 rounded-2xl object-cover ring-2 ring-indigo-500/50 shadow-lg">
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 id="user-name" class="font-heading text-2xl sm:text-3xl font-black text-white"></h1>
+              <span id="user-role-badge" class="badge-lead px-2.5 py-0.5 rounded-full text-xs font-semibold"></span>
+            </div>
+            <p id="user-college" class="text-xs text-slate-400 mt-1"></p>
+            <div class="flex items-center gap-4 mt-2 text-xs font-mono">
+              <span class="text-amber-400 flex items-center gap-1 font-bold">
+                ★ <span id="user-rating">5.0</span> (<span id="user-reviews-count">0</span> reviews)
+              </span>
+              <span class="text-indigo-300 flex items-center gap-1">
+                ⚡ <span id="user-credits">0</span> Credits
+              </span>
+              <span class="text-emerald-400 flex items-center gap-1">
+                ● Available (<span id="user-availability"></span>)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0">
+          <a href="create-team.html" class="btn-gradient px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-indigo-600/30">
+            <span>+ Create Team</span>
+          </a>
+          <a href="ai-match.html" class="glass-card px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-200 hover:text-white border border-white/10 hover:border-cyan-500/40 flex items-center gap-1.5">
+            <span class="text-cyan-400">✨</span> AI Match
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Platform Stats Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-1">
+          <div class="text-xs text-slate-400 font-medium">My Active Teams</div>
+          <div id="stat-active-teams" class="text-2xl font-black text-white font-heading">0</div>
+          <div class="text-[11px] text-indigo-400">Core Team Membership</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-1">
+          <div class="text-xs text-slate-400 font-medium">Guest Contributions</div>
+          <div id="stat-guest-teams" class="text-2xl font-black text-cyan-400 font-heading">0</div>
+          <div class="text-[11px] text-cyan-300">Specialist Collaborations</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-1">
+          <div class="text-xs text-slate-400 font-medium">Pending Requests</div>
+          <div id="stat-pending-requests" class="text-2xl font-black text-amber-400 font-heading">0</div>
+          <div class="text-[11px] text-amber-300">Join & Specialist Inquiries</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-1">
+          <div class="text-xs text-slate-400 font-medium">Reputation Credits</div>
+          <div id="stat-credits" class="text-2xl font-black text-emerald-400 font-heading">0</div>
+          <div class="text-[11px] text-emerald-300">Top 5% Student Rank</div>
+        </div>
+      </div>
+
+      <!-- Main 2-Column Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Cols: Active Teams & AI Peer Recommendations -->
+        <div class="lg:col-span-2 space-y-8">
+          
+          <!-- Active Teams Section -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                <h2 class="font-heading text-lg font-bold text-white">My Teams & Workspaces</h2>
+              </div>
+              <a href="teams.html" class="text-xs font-semibold text-indigo-400 hover:underline">Browse All Teams →</a>
+            </div>
+
+            <div id="dashboard-teams-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Dynamically Populated -->
+            </div>
+          </div>
+
+          <!-- AI Recommended Peers Stream -->
+          <div class="glass-panel p-6 rounded-3xl border border-indigo-500/20 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-cyan-400">✨</span>
+                <h2 class="font-heading text-lg font-bold text-white">AI Recommended Peers for You</h2>
+              </div>
+              <a href="ai-match.html" class="text-xs font-mono font-semibold text-cyan-400 hover:underline">Advanced AI Match →</a>
+            </div>
+            <p class="text-xs text-slate-400">Students with complementary skills who match your ongoing project goals and hackathons.</p>
+
+            <div id="dashboard-ai-matches" class="space-y-3">
+              <!-- Populated via Matching Engine -->
+            </div>
+          </div>
+
+          <!-- Pending Requests / Invitations Box -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="font-heading text-lg font-bold text-white">Incoming Requests & Invitations</h2>
+              <a href="notifications.html" class="text-xs font-semibold text-slate-400 hover:text-white">View All Notifications →</a>
+            </div>
+
+            <div id="dashboard-requests-list" class="space-y-2.5">
+              <!-- Dynamically Populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 1 Col: Upcoming Hackathons & Community Feed -->
+        <div class="space-y-8">
+          
+          <!-- Upcoming Hackathons -->
+          <div class="glass-panel p-5 rounded-3xl border border-white/10 space-y-4">
+            <div class="flex items-center justify-between border-b border-white/5 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-amber-400">🏆</span>
+                <h3 class="font-heading text-base font-bold text-white">Target Hackathons</h3>
+              </div>
+              <a href="events.html" class="text-xs text-amber-400 hover:underline">View All</a>
+            </div>
+
+            <div id="dashboard-events-list" class="space-y-3">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Recent Opportunities -->
+          <div class="glass-panel p-5 rounded-3xl border border-white/10 space-y-4">
+            <div class="flex items-center justify-between border-b border-white/5 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-rose-400">📢</span>
+                <h3 class="font-heading text-base font-bold text-white">Hiring & Specialist Feed</h3>
+              </div>
+              <a href="opportunities.html" class="text-xs text-rose-400 hover:underline">Explore</a>
+            </div>
+
+            <div id="dashboard-opps-list" class="space-y-3">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="teamforge-footer"></div>
+
+  <!-- Scripts -->
+  <script src="js/env.js" onerror="this.remove()"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ai-service.js"></script>
+  <script src="js/matching.js"></script>
+  <script src="js/teams.js"></script>
+  <script src="js/ui.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      window.TF_AUTH.requireAuth('login.html');
+      window.TF_UI.initPage('dashboard');
+
+      const user = window.TF_AUTH.getCurrentUser();
+      if (!user) return;
+
+      // Populate User Banner
+      document.getElementById('user-avatar').src = user.avatar;
+      document.getElementById('user-name').textContent = user.name;
+      document.getElementById('user-role-badge').textContent = user.role;
+      document.getElementById('user-college').textContent = `${user.college} • ${user.experience}`;
+      document.getElementById('user-rating').textContent = user.rating;
+      document.getElementById('user-reviews-count').textContent = user.reviewCount || 0;
+      document.getElementById('user-credits').textContent = user.credits || 0;
+      document.getElementById('user-availability').textContent = user.availability || '15 hrs/wk';
+
+      // Load Teams
+      const allTeams = window.TF_STORE.getTeams();
+      const myCoreTeams = allTeams.filter(t => t.members.some(m => m.userId === user.id));
+      const myGuestTeams = allTeams.filter(t => t.guests && t.guests.some(g => g.userId === user.id));
+
+      document.getElementById('stat-active-teams').textContent = myCoreTeams.length;
+      document.getElementById('stat-guest-teams').textContent = myGuestTeams.length;
+      document.getElementById('stat-credits').textContent = user.credits || 0;
+
+      // Render Teams List
+      const teamsContainer = document.getElementById('dashboard-teams-list');
+      const combinedTeams = [...myCoreTeams, ...myGuestTeams];
+
+      if (combinedTeams.length === 0) {
+        teamsContainer.innerHTML = `
+          <div class="col-span-2 glass-card p-6 rounded-2xl text-center border-dashed border-white/20">
+            <p class="text-sm text-slate-400 mb-3">You haven't joined or created any teams yet.</p>
+            <a href="create-team.html" class="btn-gradient px-4 py-2 rounded-xl text-xs font-bold inline-block">+ Create a Team</a>
+          </div>
+        `;
+      } else {
+        teamsContainer.innerHTML = combinedTeams.map(t => {
+          const isGuest = myGuestTeams.some(gt => gt.id === t.id);
+          const memberCount = (t.members?.length || 0) + (t.guests?.length || 0);
+
+          return `
+            <div class="glass-card p-5 rounded-2xl border border-white/5 hover:border-indigo-500/40 space-y-3 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-mono font-semibold text-indigo-400 uppercase truncate">${t.domain}</span>
+                  ${isGuest ? '<span class="badge-guest px-2 py-0.5 rounded text-[10px] font-bold">Guest Contributor</span>' : '<span class="badge-lead px-2 py-0.5 rounded text-[10px] font-bold">Core Member</span>'}
+                </div>
+                <h3 class="font-heading text-lg font-bold text-white mt-1">${t.name}</h3>
+                <p class="text-xs text-slate-400 line-clamp-2 mt-1">${t.tagline || t.description}</p>
+              </div>
+
+              <div class="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
+                <span class="text-slate-400">👥 ${memberCount}/${t.maxMembers} Members</span>
+                <div class="flex items-center gap-2">
+                  <a href="chat.html?team=${t.id}" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white" title="Team Chat">💬</a>
+                  <a href="team.html?id=${t.id}" class="btn-gradient px-3 py-1.5 rounded-lg text-xs font-semibold">Workspace →</a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Calculate AI Matches for this user
+      const matchResult = await window.TF_MATCHER.matchForProject({
+        prompt: user.bio + " " + user.skills.join(" "),
+        minRating: 4.5
+      });
+
+      const aiContainer = document.getElementById('dashboard-ai-matches');
+      const topMatches = matchResult.candidates.slice(0, 3);
+
+      if (topMatches.length === 0) {
+        aiContainer.innerHTML = `
+          <div class="glass-card p-4 rounded-xl text-center text-xs text-slate-500 italic">
+            No other registered peers yet. Once more students sign up, AI matching will suggest them here!
+          </div>
+        `;
+      } else {
+        aiContainer.innerHTML = topMatches.map(m => `
+          <div class="glass-panel p-3.5 rounded-2xl border border-white/5 flex items-center justify-between gap-3 hover:border-indigo-500/30 transition-all">
+            <div class="flex items-center gap-3 min-w-0">
+              <img src="${m.student.avatar}" class="w-10 h-10 rounded-xl object-cover ring-1 ring-indigo-500/40">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <a href="profile.html?id=${m.student.id}" class="text-sm font-bold text-white hover:text-indigo-400 truncate">${m.student.name}</a>
+                  <span class="text-[10px] text-amber-400 font-bold">★ ${m.student.rating}</span>
+                </div>
+                <div class="text-xs text-slate-400 truncate">${m.student.role} • ${m.student.college}</div>
+                <div class="text-[11px] text-cyan-300 font-mono mt-0.5 truncate">✨ ${m.primaryReason}</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-xs font-mono font-bold text-indigo-300 px-2 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20">${m.matchPercentage}%</span>
+              <button onclick="inviteUserModal('${m.student.id}')" class="btn-gradient px-2.5 py-1.5 rounded-lg text-xs font-semibold">Invite</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Pending Join Requests & Invites
+      const pendingRequests = [];
+      myCoreTeams.forEach(team => {
+        if (team.joinRequests) {
+          team.joinRequests.filter(r => r.status === 'pending').forEach(r => {
+            pendingRequests.push({ team, request: r });
+          });
+        }
+      });
+
+      document.getElementById('stat-pending-requests').textContent = pendingRequests.length;
+      const requestsContainer = document.getElementById('dashboard-requests-list');
+
+      if (pendingRequests.length === 0) {
+        requestsContainer.innerHTML = `<div class="glass-card p-4 rounded-xl text-center text-xs text-slate-500 italic">No incoming requests right now.</div>`;
+      } else {
+        requestsContainer.innerHTML = pendingRequests.map(item => `
+          <div class="glass-panel p-3.5 rounded-xl border border-amber-500/20 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <img src="${item.request.userAvatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + item.request.userName}" class="w-9 h-9 rounded-lg object-cover">
+              <div class="min-w-0">
+                <div class="text-xs font-semibold text-white truncate">${item.request.userName} wants to join <strong class="text-indigo-300">${item.team.name}</strong></div>
+                <div class="text-[11px] text-slate-400 truncate">"${item.request.message}"</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button onclick="window.TF_TEAMS.handleJoinRequest('${item.team.id}', '${item.request.id}', 'accept'); window.location.reload();" class="px-2.5 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 text-xs font-semibold border border-emerald-500/30">Accept</button>
+              <button onclick="window.TF_TEAMS.handleJoinRequest('${item.team.id}', '${item.request.id}', 'reject'); window.location.reload();" class="px-2 py-1 rounded-lg bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 text-xs font-semibold border border-rose-500/30">✕</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Upcoming Events
+      const events = window.TF_STORE.getEvents().slice(0, 3);
+      document.getElementById('dashboard-events-list').innerHTML = events.map(e => `
+        <div class="glass-card p-3.5 rounded-xl border border-white/5 space-y-1.5">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-amber-400 font-semibold font-mono">📅 ${e.dates}</span>
+            <span class="text-slate-400">${e.mode}</span>
+          </div>
+          <div class="font-bold text-xs text-white">${e.title}</div>
+          <div class="text-[11px] text-emerald-400 font-mono">${e.prize}</div>
+          <div class="pt-1 flex items-center justify-between text-[11px]">
+            <span class="text-slate-400">${e.activeTeamsCount} teams assembling</span>
+            <a href="ai-match.html?hackathon=${encodeURIComponent(e.title)}" class="text-indigo-400 hover:underline font-semibold">Form Squad →</a>
+          </div>
+        </div>
+      `).join('');
+
+      // Opportunities
+      const opps = window.TF_STORE.getOpportunities().slice(0, 2);
+      document.getElementById('dashboard-opps-list').innerHTML = opps.map(o => `
+        <div class="glass-card p-3 rounded-xl border border-white/5 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] uppercase font-mono font-bold text-rose-400">${o.type}</span>
+            <span class="text-[10px] text-slate-400">⚡ ${o.creditsReward} cr</span>
+          </div>
+          <div class="text-xs font-bold text-white">${o.title}</div>
+          <div class="text-[11px] text-slate-400 truncate">${o.description}</div>
+          <a href="opportunities.html" class="text-[11px] text-cyan-400 hover:underline font-semibold block pt-1">Apply Now →</a>
+        </div>
+      `).join('');
+    });
+
+    function inviteUserModal(studentId) {
+      const student = window.TF_STORE.getStudentById(studentId);
+      const user = window.TF_AUTH.getCurrentUser();
+      const teams = window.TF_STORE.getTeams().filter(t => t.ownerId === user.id);
+
+      if (teams.length === 0) {
+        window.TF_STATE.toast("Create a team first", "You must own a team to invite members.", "warning");
+        return;
+      }
+
+      window.TF_STATE.showModal(`
+        <div class="space-y-4">
+          <h3 class="font-heading text-lg font-bold text-white">Invite ${student.name} to Team</h3>
+          <p class="text-xs text-slate-400">Select which project team you want to add this student to.</p>
+          
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Select Team</label>
+            <select id="modal-team-select" class="glass-input w-full px-3 py-2 rounded-xl text-sm">
+              ${teams.map(t => `<option value="${t.id}">${t.name} (${t.domain})</option>`).join('')}
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Invitation Type</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="glass-card p-2.5 rounded-xl border border-white/10 flex items-center gap-2 text-xs cursor-pointer">
+                <input type="radio" name="invite-type" value="core" checked class="text-indigo-600">
+                <span>Core Member</span>
+              </label>
+              <label class="glass-card p-2.5 rounded-xl border border-white/10 flex items-center gap-2 text-xs cursor-pointer">
+                <input type="radio" name="invite-type" value="guest" class="text-amber-500">
+                <span>Guest Specialist</span>
+              </label>
+            </div>
+          </div>
+
+          <button onclick="submitInvite('${studentId}')" class="btn-gradient w-full py-2.5 rounded-xl text-xs font-bold">
+            Send Invitation
+          </button>
+        </div>
+      `);
+    }
+
+    function submitInvite(studentId) {
+      const teamId = document.getElementById('modal-team-select').value;
+      const isGuest = document.querySelector('input[name="invite-type"]:checked').value === 'guest';
+      window.TF_TEAMS.inviteStudent(teamId, studentId, isGuest);
+      window.TF_STATE.closeModal();
+    }
+  </script>
+</body>
+</html>

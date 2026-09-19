@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create New Team — TeamForge</title>
+  <meta name="description" content="Launch a new project squad, define skill requirements, and recruit complementary teammates with AI.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased min-h-screen relative selection:bg-indigo-500 selection:text-white">
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Top Navbar -->
+  <div id="teamforge-navbar"></div>
+
+  <div class="max-w-7xl mx-auto flex">
+    <!-- Sidebar -->
+    <div id="teamforge-sidebar"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 lg:p-8 space-y-6 min-w-0 max-w-4xl">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-300 text-xs font-mono mb-2 border border-indigo-500/20">
+          <span>🚀 Team Formation Wizard</span>
+        </div>
+        <h1 class="font-heading text-2xl sm:text-3xl font-black text-white">
+          Launch a New Project Squad
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Set your project requirements, specify needed roles, and let our AI match you with peer builders.
+        </p>
+      </div>
+
+      <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6">
+        <form id="create-team-form" class="space-y-6">
+          
+          <!-- Team Name & Tagline -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Team / Project Name *</label>
+              <input type="text" id="name" required placeholder="e.g. Synapse AI, EcoChain, QuantumVibe" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm font-semibold">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">One-Line Tagline *</label>
+              <input type="text" id="tagline" required placeholder="e.g. Real-time neural focus tracking for students" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-slate-300">Project Description & Objectives *</label>
+              <button type="button" onclick="autoGenerateIdea()" class="text-xs text-cyan-400 hover:underline flex items-center gap-1">
+                <span>✨ AI Suggest Idea</span>
+              </button>
+            </div>
+            <textarea id="description" rows="3" required placeholder="Describe what you plan to build, key features, and target users..." class="glass-input w-full px-4 py-2.5 rounded-xl text-sm"></textarea>
+          </div>
+
+          <!-- Domain & Target Hackathon -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Domain *</label>
+              <select id="domain" class="glass-input w-full px-3 py-2.5 rounded-xl text-sm">
+                <option value="Artificial Intelligence">Artificial Intelligence & NLP</option>
+                <option value="Computer Vision & Robotics">Computer Vision & Robotics</option>
+                <option value="Web3 & Blockchain">Web3 / Blockchain / DeFi</option>
+                <option value="Sustainability & CleanTech">Sustainability & CleanTech</option>
+                <option value="Healthcare Tech">Healthcare Tech</option>
+                <option value="EdTech & Developer Tools">EdTech & Developer Tools</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Target Hackathon / Competition</label>
+              <select id="hackathonTarget" class="glass-input w-full px-3 py-2.5 rounded-xl text-sm">
+                <option value="Global AI & Agentic Hackathon 2026">Global AI & Agentic Hackathon 2026 ($100k)</option>
+                <option value="MIT Climate & Sustainable Tech Sprint">MIT Climate & Sustainable Tech Sprint ($50k)</option>
+                <option value="RoboHack World 2026">RoboHack World 2026 ($75k)</option>
+                <option value="Berkeley Blockchain & ZK Summit">Berkeley Blockchain & ZK Summit</option>
+                <option value="Independent Academic Project">Independent Academic Project / Startup</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Required Skills & Missing Roles -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Required Tech Skills (comma separated) *</label>
+              <input type="text" id="requiredSkills" required placeholder="e.g. Python, PyTorch, React, FastAPI, Docker" value="Python, PyTorch, FastAPI, React" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Target Roles to Recruit (comma separated) *</label>
+              <input type="text" id="requiredRoles" required placeholder="e.g. Frontend Architect, UI/UX Designer, ML Specialist" value="Frontend Architect, UI/UX Designer" class="glass-input w-full px-4 py-2.5 rounded-xl text-sm">
+            </div>
+          </div>
+
+          <!-- Max Members & Your Role -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Max Team Size</label>
+              <select id="maxMembers" class="glass-input w-full px-3 py-2.5 rounded-xl text-sm">
+                <option value="3">3 Members</option>
+                <option value="4" selected>4 Members (Optimal)</option>
+                <option value="5">5 Members (Hackathon Max)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Your Role in Team</label>
+              <input type="text" id="myRole" value="Team Lead & Architect" class="glass-input w-full px-3 py-2.5 rounded-xl text-sm">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Visibility</label>
+              <select id="visibility" class="glass-input w-full px-3 py-2.5 rounded-xl text-sm">
+                <option value="public">Public (Listed in Directory)</option>
+                <option value="private">Private (Invite Only)</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-gradient w-full py-3.5 rounded-xl font-bold text-sm shadow-xl shadow-indigo-600/30">
+            Create Team & Open Workspace
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <div id="teamforge-footer"></div>
+
+  <!-- Scripts -->
+  <script src="js/env.js" onerror="this.remove()"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ai-service.js"></script>
+  <script src="js/teams.js"></script>
+  <script src="js/ui.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.TF_AUTH.requireAuth('login.html');
+      window.TF_UI.initPage('teams');
+    });
+
+    async function autoGenerateIdea() {
+      const domain = document.getElementById('domain').value;
+      window.TF_STATE.toast("ForgeAI Brainstorming", "Generating high-potential project idea...", "ai");
+      
+      const ideaText = await window.TF_AI.generateIdea(domain);
+      document.getElementById('description').value = ideaText;
+    }
+
+    document.getElementById('create-team-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const teamData = {
+        name: document.getElementById('name').value.trim(),
+        tagline: document.getElementById('tagline').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        domain: document.getElementById('domain').value,
+        hackathonTarget: document.getElementById('hackathonTarget').value,
+        requiredSkills: document.getElementById('requiredSkills').value,
+        requiredRoles: document.getElementById('requiredRoles').value,
+        maxMembers: document.getElementById('maxMembers').value,
+        myRole: document.getElementById('myRole').value.trim(),
+        visibility: document.getElementById('visibility').value
+      };
+
+      const newTeam = window.TF_TEAMS.createTeam(teamData);
+      if (newTeam) {
+        setTimeout(() => {
+          window.location.href = `team.html?id=${newTeam.id}`;
+        }, 600);
+      }
+    });
+  </script>
+</body>
+</html>
