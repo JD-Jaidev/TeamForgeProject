@@ -131,14 +131,99 @@ class TeamForgeStore {
 
   saveStudent(student) {
     const list = this.getStudents();
-    const index = list.findIndex(s => s.id === student.id);
+    const index = list.findIndex(s => s.id === student.id || (s.email && student.email && s.email.toLowerCase() === student.email.toLowerCase()));
     if (index >= 0) {
       list[index] = { ...list[index], ...student };
     } else {
       list.push(student);
     }
     localStorage.setItem('tf_students', JSON.stringify(list));
+    this.saveStudentRemote(student);
     return student;
+  }
+
+  async saveStudentRemote(student) {
+    if (!window.TF_CONFIG || !window.TF_CONFIG.isSupabaseConfigured()) return;
+    try {
+      const url = `${window.TF_CONFIG.SUPABASE_URL}/rest/v1/profiles`;
+      await fetch(url, {
+        method: 'POST',
+        headers: {
+          'apikey': window.TF_CONFIG.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${window.TF_CONFIG.SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify({
+          email: student.email,
+          name: student.name,
+          avatar_url: student.avatar,
+          college: student.college,
+          bio: student.bio,
+          role: student.role,
+          experience: student.experience,
+          availability: student.availability,
+          rating: student.rating,
+          credits: student.credits,
+          review_count: student.reviewCount,
+          github_url: student.github,
+          linkedin_url: student.linkedin,
+          portfolio_url: student.portfolio
+        })
+      });
+    } catch (e) {
+      console.warn("Remote profile save warning:", e);
+    }
+  }
+
+  async syncFromSupabase() {
+    if (!window.TF_CONFIG || !window.TF_CONFIG.isSupabaseConfigured()) return;
+    try {
+      const url = `${window.TF_CONFIG.SUPABASE_URL}/rest/v1/profiles?select=*`;
+      const res = await fetch(url, {
+        headers: {
+          'apikey': window.TF_CONFIG.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${window.TF_CONFIG.SUPABASE_ANON_KEY}`
+        }
+      });
+      if (res.ok) {
+        const remoteProfiles = await res.json();
+        if (Array.isArray(remoteProfiles) && remoteProfiles.length > 0) {
+          const localStudents = this.getStudents();
+          remoteProfiles.forEach(rp => {
+            const mapped = {
+              id: rp.id,
+              name: rp.name,
+              email: rp.email,
+              avatar: rp.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(rp.name)}`,
+              college: rp.college || "Tech University",
+              bio: rp.bio || "",
+              role: rp.role || "Full Stack Developer",
+              experience: rp.experience || "Intermediate",
+              availability: rp.availability || "15-20 hrs/week",
+              skills: Array.isArray(rp.skills) ? rp.skills : (rp.skills ? rp.skills.split(',').map(s=>s.trim()) : ["Python", "JavaScript"]),
+              domains: rp.domains || ["Artificial Intelligence", "Full Stack & Web"],
+              rating: Number(rp.rating) || 5.0,
+              credits: Number(rp.credits) || 200,
+              reviewCount: Number(rp.review_count) || 0,
+              github: rp.github_url || "",
+              linkedin: rp.linkedin_url || "",
+              portfolio: rp.portfolio_url || "",
+              verifiedBadge: rp.verified || false
+            };
+            const idx = localStudents.findIndex(s => s.id === mapped.id || (s.email && mapped.email && s.email.toLowerCase() === mapped.email.toLowerCase()));
+            if (idx >= 0) {
+              localStudents[idx] = { ...localStudents[idx], ...mapped };
+            } else {
+              localStudents.push(mapped);
+            }
+          });
+          localStorage.setItem('tf_students', JSON.stringify(localStudents));
+        }
+      }
+    } catch (e) {
+      console.warn("Supabase sync warning:", e);
+    }
   }
 
   getTeams() {

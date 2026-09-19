@@ -564,9 +564,22 @@
       renderStudents();
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       window.TF_UI.initPage('discover');
       renderStudents();
+
+      // Cloud Sync (if Supabase configured)
+      if (window.TF_STORE && typeof window.TF_STORE.syncFromSupabase === 'function') {
+        await window.TF_STORE.syncFromSupabase();
+        renderStudents();
+      }
+
+      // Multi-tab sync: automatically re-render when new accounts are signed up in other tabs
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'tf_students') {
+          renderStudents();
+        }
+      });
 
       document.getElementById('search-query').addEventListener('input', renderStudents);
       document.getElementById('filter-domain').addEventListener('change', renderStudents);
