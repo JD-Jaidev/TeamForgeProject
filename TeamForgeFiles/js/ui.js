@@ -80,9 +80,23 @@ class TeamForgeUI {
                     💬 Team Chats & AI Bot
                   </a>
                   <a href="settings.html" class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-indigo-600/20 transition-colors">
-                    ⚙️ Settings & API Keys
+                    ⚙️ Settings & Account
                   </a>
                 </div>
+
+                ${(window.TF_AUTH && window.TF_AUTH.getSignedInAccounts().filter(a => a.id !== user.id).length > 0) ? `
+                  <div class="border-t border-white/5 py-1">
+                    <p class="px-3 py-1 text-[10px] uppercase font-mono tracking-wider text-slate-400">Switch Account</p>
+                    ${window.TF_AUTH.getSignedInAccounts().filter(a => a.id !== user.id).map(a => `
+                      <button onclick="window.TF_AUTH.switchPersona('${a.id}'); window.location.reload();" class="w-full text-left flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
+                        <img src="${a.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(a.name) + '&background=6366f1&color=fff&bold=true&size=128')}" 
+                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${a.name}') + '&background=6366f1&color=fff&bold=true&size=128';"
+                             class="w-5 h-5 rounded-md object-cover ring-1 ring-white/10 shrink-0">
+                        <span class="truncate">${a.name}</span>
+                      </button>
+                    `).join('')}
+                  </div>
+                ` : ''}
 
                 <div class="border-t border-white/5 pt-1">
                   <button onclick="window.TF_AUTH.logout(); window.location.href='index.html';" class="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors flex items-center gap-2">
