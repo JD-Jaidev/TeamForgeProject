@@ -160,6 +160,152 @@ Output MUST be raw valid JSON matching this schema:
     return await this.callOpenRouter(messages);
   }
 
+  async askHackathonQuery(hackathon, userQuery, chatHistory = []) {
+    const allEvents = window.TF_STORE ? window.TF_STORE.getEvents() : [];
+    
+    // Construct rich context about the specific hackathon or all posted hackathons
+    let contextDescription = "";
+    if (hackathon && hackathon.title) {
+      contextDescription = `
+Target Hackathon: "${hackathon.title}"
+Organizer: ${hackathon.organizer || 'Student Committee / Tech Host'}
+Dates: ${hackathon.dates || 'Upcoming 2026'}
+Registration Deadline: ${hackathon.deadline || 'TBA'}
+Prizes & Bounty: ${hackathon.prize || 'Cash Prize & Swag'}
+Format / Mode: ${hackathon.mode || 'Online'} (${hackathon.location || 'Global'})
+Key Tracks & Tags: ${(hackathon.tags || []).join(', ') || 'AI, Web3, Full Stack, Innovation'}
+Description & Problem Statement: ${hackathon.description || 'Global student hackathon challenge.'}
+`;
+    } else {
+      contextDescription = `
+All Currently Posted Hackathons on TeamForge:
+${allEvents.map((e, idx) => `${idx + 1}. "${e.title}" | Dates: ${e.dates} | Prize: ${e.prize} | Mode: ${e.mode} | Tags: ${(e.tags || []).join(', ')} | Overview: ${e.description}`).join('\n')}
+`;
+    }
+
+    const systemPrompt = `You are ForgeAI, the official TeamForge Hackathon Mentor, Technical Lead, and Competition Strategist.
+You assist students and developer teams with winning strategies, high-impact project brainstorming, technical architecture, team role requirements, time management, and pitch advice.
+
+Current Hackathon Context:
+${contextDescription}
+
+Guidelines:
+- Deliver sharp, highly actionable answers tailored to the hackathon's specific theme, rules, and timeline.
+- Format responses cleanly with bold text, headings, and clear bullet points.
+- If brainstorming ideas, suggest feasible, demo-ready concepts suitable for a 24-48 hour hackathon build.
+- Suggest modern tech stacks for rapid prototyping (e.g. Supabase, FastAPI/Node, Next.js/React, TailwindCSS, OpenRouter/LLM APIs, Vercel).
+- Keep your tone encouraging, ambitious, and direct.`;
+
+    const messages = [
+      { role: "system", content: systemPrompt }
+    ];
+
+    // Append recent history for multi-turn dialogue
+    if (Array.isArray(chatHistory)) {
+      chatHistory.slice(-6).forEach(msg => {
+        messages.push({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        });
+      });
+    }
+
+    messages.push({ role: "user", content: userQuery });
+
+    if (window.TF_CONFIG.isOpenRouterConfigured() || window.TF_CONFIG.EDGE_FUNCTION_URL) {
+      try {
+        const reply = await this.callOpenRouter(messages, 0.7);
+        if (reply && reply.trim()) {
+          return reply;
+        }
+      } catch (err) {
+        console.warn("AI API call failed or rate-limited. Falling back to local heuristic response:", err);
+      }
+    }
+
+    return this.simulateHackathonResponse(hackathon, userQuery);
+  }
+
+  simulateHackathonResponse(hackathon, userQuery) {
+    const q = (userQuery || '').toLowerCase();
+    const eventName = hackathon?.title || 'this Hackathon';
+    const tags = (hackathon?.tags || ['AI', 'Web Development']).join(', ');
+    const prize = hackathon?.prize || 'Cash Prizes & Certificates';
+    const dates = hackathon?.dates || 'Upcoming Sprint';
+    const mode = hackathon?.mode || 'Online';
+
+    if (q.includes('idea') || q.includes('brainstorm') || q.includes('project') || q.includes('build')) {
+      return `💡 **Top 2 Winning Project Ideas for ${eventName}**
+
+### Option 1: AI-Powered Adaptive Assistant (*Highest Scoring*)
+* **Concept:** A real-time intelligent workspace tool integrating LLMs with low-latency streaming to automate complex workflows.
+* **Why it wins:** Judges love working demos that solve clear productivity bottlenecks within 30 seconds of presentation.
+* **Key Tech:** Next.js, Supabase Realtime, FastAPI, Vector Search.
+
+### Option 2: Collaborative Hub with Live Edge Sync
+* **Concept:** A multi-tenant platform focusing on real-time peer interactions, live telemetry, and automated role discovery.
+* **Why it wins:** Demonstrates high technical complexity and seamless multiplayer collaboration.
+* **Key Tech:** Tailwind CSS, WebSockets / Supabase RLS, Node.js / Python.
+
+👉 **Next Step:** Head to **AI Match** to assemble teammates with complementary skills in **${tags}**!`;
+    }
+
+    if (q.includes('stack') || q.includes('tech') || q.includes('architecture') || q.includes('tools')) {
+      return `🛠️ **Recommended Tech Stack & Architecture for ${eventName}**
+
+* **Frontend:** React / Vite or Next.js + Tailwind CSS *(for rapid, beautiful UI prototyping)*
+* **Backend & Database:** Supabase (PostgreSQL + Auth + Realtime Database) *(saves 10+ hours of backend setup)*
+* **AI & Intelligence:** OpenRouter API / Gemini Flash API *(high speed, cost-effective inference)*
+* **Deployment & CI/CD:** Vercel / Railway *(1-click zero-downtime deploy for live judging)*
+
+⚡ **Pro Tip:** Don't build custom auth or complex server management from scratch. Use managed backends so you can spend 90% of your time on the core user experience.`;
+    }
+
+    if (q.includes('role') || q.includes('team') || q.includes('members') || q.includes('squad') || q.includes('skill')) {
+      return `👥 **Ideal Team Composition for ${eventName}**
+
+To maximize your chances of winning the **${prize}**, recruit this balanced 3-4 member squad:
+
+1. **Lead Full Stack / System Architect:** Handles API integrations, database schemas, and state management.
+2. **AI / ML / Backend Specialist:** Implements core domain logic, prompt pipelines, and embeddings.
+3. **Frontend & UI/UX Designer:** Creates polished glassmorphic UI, responsive layouts, and the pitch presentation.
+4. **Product Lead & Pitch Presenter:** Refines the narrative, ensures MVP scope fits the deadline, and leads the judge Q&A.
+
+🎯 *You can 1-click invite peers matching these exact skills right here on TeamForge!*`;
+    }
+
+    if (q.includes('roadmap') || q.includes('timeline') || q.includes('schedule') || q.includes('time') || q.includes('plan')) {
+      return `⏱️ **Winning 48-Hour Hackathon Execution Plan**
+
+* **Hours 0–4 (Foundation):** Lock down the MVP scope, initialize GitHub repo, Supabase database, and assign team roles.
+* **Hours 5–20 (Core Build):** Implement the primary feature that makes your project stand out. Keep it functioning end-to-end.
+* **Hours 21–36 (Polish & Sync):** Connect the frontend to live APIs, add animations, and eliminate blocker bugs.
+* **Hours 37–44 (Pitch & Demo Prep):** Record a 2-minute backup demo video, write the README, and prepare the slide deck.
+* **Hours 45–48 (Final Submission):** Deploy live link, test from mobile & incognito browsers, and submit ahead of the deadline!`;
+    }
+
+    if (q.includes('judge') || q.includes('pitch') || q.includes('win') || q.includes('presentation') || q.includes('criteria')) {
+      return `🏆 **Pitch & Judging Strategy for ${eventName}**
+
+Judges evaluate hackathons across 4 core pillars:
+1. **Innovation & Originality (30%):** Solve a real, recognizable problem in a novel way.
+2. **Technical Execution & Polish (30%):** A working, beautiful prototype beats 10 half-finished complex features.
+3. **Business & Real-World Impact (20%):** Explain who benefits and why this can become a real product.
+4. **Presentation & Live Demo (20%):**
+   * Start with a 15-second hook (the pain point).
+   * Show the live working product immediately (avoid 5 minutes of theory slides).
+   * Finish with a crisp summary of next steps.`;
+    }
+
+    return `✨ **ForgeAI Hackathon Strategy for ${eventName}**
+
+* **Event Timeline:** ${dates} (${mode})
+* **Target Prize:** ${prize}
+* **Focus Tracks:** ${tags}
+
+I can help you brainstorm winning ideas, suggest technical architectures, map out team roles, or prepare your pitch. What specific aspect of **${eventName}** would you like guidance on?`;
+  }
+
   simulateAIResponse(messages) {
     const userMsg = messages[messages.length - 1]?.content?.toLowerCase() || '';
 

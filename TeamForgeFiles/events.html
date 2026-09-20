@@ -39,11 +39,38 @@
         </button>
       </div>
 
+      <!-- AI Hackathon Advisor Banner -->
+      <div class="glass-card p-5 sm:p-6 rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/50 via-purple-950/30 to-slate-900/70 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="space-y-1 z-10">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-mono font-bold border border-cyan-500/20">ForgeAI Strategy Copilot</span>
+            <span class="text-xs text-amber-400 font-bold">✨ Instant Hackathon Q&A</span>
+          </div>
+          <h2 class="font-heading text-base sm:text-lg font-bold text-white">Have questions about tracks, winning ideas, or tech stacks?</h2>
+          <p class="text-xs text-slate-300 max-w-xl">Ask our AI Advisor to brainstorm winning project concepts, break down judging rubrics, or recommend the optimal tech stack for any listed competition.</p>
+        </div>
+        <button onclick="openHackathonAIChat()" class="btn-gradient px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 flex items-center gap-2 shrink-0 z-10">
+          <span>🤖</span> Ask Hackathon AI Copilot
+        </button>
+      </div>
+
       <!-- Events Grid -->
       <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Populated dynamically -->
       </div>
     </main>
+  </div>
+
+  <!-- Floating AI Advisor Button -->
+  <div class="fixed bottom-6 right-6 z-40">
+    <button onclick="openHackathonAIChat()" class="btn-gradient px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-indigo-500/40 flex items-center gap-2.5 border border-white/20 hover:scale-105 active:scale-95 transition-all group">
+      <span class="relative flex h-3 w-3">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+      </span>
+      <span class="text-white">Ask Hackathon AI</span>
+    </button>
   </div>
 
   <div id="teamforge-footer"></div>
@@ -54,10 +81,15 @@
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/state.js"></script>
+  <script src="js/ai-service.js"></script>
   <script src="js/events.js"></script>
   <script src="js/ui.js"></script>
 
   <script>
+    let currentChatEventId = 'all';
+    let chatHistory = [];
+    let isAIGenerating = false;
+
     document.addEventListener('DOMContentLoaded', () => {
       window.TF_UI.initPage('events');
       renderEvents();
@@ -106,24 +138,271 @@
             </div>
           </div>
 
-          <div class="pt-4 border-t border-white/5 flex items-center justify-between gap-3">
+          <div class="pt-4 border-t border-white/5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <div class="text-xs text-slate-400">
               👥 <strong>${e.activeTeamsCount || 1}</strong> squads assembling
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <button onclick="openHackathonAIChat('${e.id}')" class="glass-card px-3 py-2 rounded-xl text-xs font-bold text-cyan-300 hover:text-white border border-cyan-500/30 hover:border-cyan-400/60 transition-all flex items-center gap-1.5 shadow-sm shadow-cyan-500/10" title="Ask AI about this hackathon">
+                <span>🤖</span> Ask AI
+              </button>
               ${e.registrationLink && e.registrationLink !== '#' ? `
-                <a href="${e.registrationLink}" target="_blank" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-slate-200 hover:text-white font-medium">
-                  Official Site ↗
+                <a href="${e.registrationLink}" target="_blank" class="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-slate-200 hover:text-white font-medium">
+                  Site ↗
                 </a>
               ` : ''}
-              <a href="ai-match.html?hackathon=${encodeURIComponent(e.title)}" class="btn-gradient px-4 py-2 rounded-xl text-xs font-bold shadow-md">
-                ✨ Form Squad with AI
+              <a href="ai-match.html?hackathon=${encodeURIComponent(e.title)}" class="btn-gradient px-3.5 py-2 rounded-xl text-xs font-bold shadow-md flex items-center gap-1">
+                <span>✨</span> Squad
               </a>
             </div>
           </div>
         </div>
       `).join('');
+    }
+
+    function openHackathonAIChat(eventId = 'all') {
+      currentChatEventId = eventId;
+      const events = window.TF_STORE.getEvents();
+      const targetEvent = events.find(e => e.id === eventId);
+
+      // Reset chat history for clean session
+      chatHistory = [];
+
+      const initialMessage = targetEvent
+        ? `Hello! I'm **ForgeAI**, your Hackathon Advisor for **${targetEvent.title}**.\n\nI can help you brainstorm winning ideas, suggest technical architectures, map out team roles, or prepare your pitch for the **${targetEvent.prize}** prize. What would you like to explore?`
+        : `Hello! I'm **ForgeAI**, your Hackathon Advisor.\n\nI can help you explore all posted hackathons, find which one fits your skills, brainstorm winning project concepts, or build an execution roadmap. How can I assist you?`;
+
+      chatHistory.push({ role: 'assistant', content: initialMessage });
+
+      window.TF_STATE.showModal(`
+        <div class="space-y-4 max-w-2xl mx-auto flex flex-col h-[78vh]">
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between border-b border-white/10 pb-3 shrink-0">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white text-lg shadow-lg shadow-cyan-500/30">
+                🤖
+              </div>
+              <div>
+                <h3 class="font-heading text-base font-bold text-white flex items-center gap-2">
+                  ForgeAI Hackathon Advisor
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono font-bold">Online</span>
+                </h3>
+                <p class="text-[11px] text-slate-400">Ask questions, brainstorm solutions, and get competition strategy</p>
+              </div>
+            </div>
+            
+            <button onclick="clearAIChatHistory()" class="text-xs text-slate-400 hover:text-slate-200 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+              ↺ Clear
+            </button>
+          </div>
+
+          <!-- Hackathon Context Selector & Info Card -->
+          <div class="glass-card p-3 rounded-2xl border border-white/10 bg-slate-900/60 space-y-2 shrink-0">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <span>🎯 Target Competition:</span>
+              </label>
+              <select id="ai-chat-event-select" onchange="changeAIChatEvent(this.value)" class="glass-input px-3 py-1.5 rounded-xl text-xs bg-slate-900 text-white font-medium border border-white/10 focus:border-cyan-500">
+                <option value="all" ${eventId === 'all' ? 'selected' : ''}>🌐 All Posted Hackathons Overview</option>
+                ${events.map(ev => `<option value="${ev.id}" ${ev.id === eventId ? 'selected' : ''}>🏆 ${ev.title} (${ev.dates})</option>`).join('')}
+              </select>
+            </div>
+
+            <div id="ai-chat-event-badge" class="text-[11px] text-slate-400 flex flex-wrap items-center gap-3 pt-1 border-t border-white/5">
+              ${renderEventBadgeContent(targetEvent)}
+            </div>
+          </div>
+
+          <!-- Quick Query Prompt Chips -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 shrink-0 scrollbar-thin">
+            <button onclick="sendQuickPrompt('💡 Brainstorm 2 innovative, winning project ideas for this hackathon with tech stack')" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-indigo-600/30 text-indigo-200 text-xs font-medium border border-white/10 hover:border-indigo-500/40 transition-all shrink-0">
+              💡 Winning Ideas
+            </button>
+            <button onclick="sendQuickPrompt('🛠️ What is the best tech stack and architecture to build an MVP fast?')" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-cyan-600/30 text-cyan-200 text-xs font-medium border border-white/10 hover:border-cyan-500/40 transition-all shrink-0">
+              🛠️ Tech Stack & Arch
+            </button>
+            <button onclick="sendQuickPrompt('👥 What team roles and skills are needed to win this hackathon?')" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-amber-600/30 text-amber-200 text-xs font-medium border border-white/10 hover:border-amber-500/40 transition-all shrink-0">
+              👥 Team Composition
+            </button>
+            <button onclick="sendQuickPrompt('⏱️ Create a 48-hour hour-by-hour sprint execution roadmap for our team')" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-emerald-600/30 text-emerald-200 text-xs font-medium border border-white/10 hover:border-emerald-500/40 transition-all shrink-0">
+              ⏱️ 48h Sprint Plan
+            </button>
+            <button onclick="sendQuickPrompt('🏆 How should we prepare our final pitch and live demo to impress the judges?')" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-rose-600/30 text-rose-200 text-xs font-medium border border-white/10 hover:border-rose-500/40 transition-all shrink-0">
+              🏆 Pitch & Judging Rubric
+            </button>
+          </div>
+
+          <!-- Chat Conversation Scroll Area -->
+          <div id="ai-chat-messages-box" class="flex-1 overflow-y-auto space-y-3.5 pr-2 rounded-2xl p-3 bg-black/20 border border-white/5 scrollbar-thin">
+            ${renderChatMessagesHTML()}
+          </div>
+
+          <!-- Chat Input Controls -->
+          <form id="ai-chat-input-form" onsubmit="handleAIChatSubmit(event)" class="shrink-0 pt-2 border-t border-white/10">
+            <div class="flex items-center gap-2">
+              <input type="text" id="ai-chat-input" placeholder="Ask anything about this hackathon (e.g. What MVP will win? How to start?)..." required class="glass-input flex-1 px-4 py-3 rounded-2xl text-xs focus:ring-2 focus:ring-cyan-400 bg-slate-900/90 text-white placeholder-slate-500">
+              <button type="submit" id="ai-chat-send-btn" class="btn-gradient px-5 py-3 rounded-2xl text-xs font-bold shadow-lg shadow-indigo-600/30 flex items-center gap-1.5 shrink-0">
+                <span>Send</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </button>
+            </div>
+          </form>
+        </div>
+      `);
+
+      setTimeout(() => {
+        const input = document.getElementById('ai-chat-input');
+        if (input) input.focus();
+        scrollAIChatToBottom();
+      }, 100);
+    }
+
+    function renderEventBadgeContent(targetEvent) {
+      if (!targetEvent) {
+        return `<span>✨ <strong>All Competitions:</strong> Asking cross-hackathon comparison questions.</span>`;
+      }
+      return `
+        <span>🏆 Prize: <strong class="text-amber-300 font-mono">${targetEvent.prize || 'TBA'}</strong></span>
+        <span>📅 Dates: <strong class="text-slate-200 font-mono">${targetEvent.dates}</strong></span>
+        <span>📍 Mode: <strong class="text-slate-200">${targetEvent.mode || 'Online'}</strong></span>
+        <span>🏷️ Tracks: <strong class="text-indigo-300">${(targetEvent.tags || []).join(', ') || 'General'}</strong></span>
+      `;
+    }
+
+    function changeAIChatEvent(newEventId) {
+      currentChatEventId = newEventId;
+      const events = window.TF_STORE.getEvents();
+      const targetEvent = events.find(e => e.id === newEventId);
+      
+      const badge = document.getElementById('ai-chat-event-badge');
+      if (badge) {
+        badge.innerHTML = renderEventBadgeContent(targetEvent);
+      }
+
+      const switchNotice = targetEvent 
+        ? `Switched target hackathon to **${targetEvent.title}** (Prize: ${targetEvent.prize || 'Cash Prize'}). What would you like to know about this event?`
+        : `Switched to **All Hackathons Overview**. Ask any comparison or discovery question!`;
+
+      chatHistory.push({ role: 'assistant', content: switchNotice });
+      updateAIChatDisplay();
+    }
+
+    function renderChatMessagesHTML() {
+      return chatHistory.map(msg => {
+        if (msg.role === 'user') {
+          return `
+            <div class="flex justify-end gap-2.5">
+              <div class="max-w-[85%] sm:max-w-[75%] bg-indigo-600 text-white p-3 rounded-2xl rounded-tr-sm text-xs leading-relaxed shadow-md">
+                ${formatMarkdown(msg.content)}
+              </div>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="flex items-start gap-2.5">
+              <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white text-xs shrink-0 shadow-md shadow-cyan-500/20">
+                🤖
+              </div>
+              <div class="max-w-[90%] sm:max-w-[85%] glass-panel p-4 rounded-2xl rounded-tl-sm text-xs leading-relaxed border border-white/10 text-slate-200 space-y-1">
+                ${formatMarkdown(msg.content)}
+              </div>
+            </div>
+          `;
+        }
+      }).join('');
+    }
+
+    function updateAIChatDisplay() {
+      const container = document.getElementById('ai-chat-messages-box');
+      if (!container) return;
+      container.innerHTML = renderChatMessagesHTML() + (isAIGenerating ? `
+        <div class="flex items-start gap-2.5">
+          <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white text-xs shrink-0 animate-pulse">
+            🤖
+          </div>
+          <div class="glass-panel p-3.5 rounded-2xl rounded-tl-sm text-xs border border-white/10 text-slate-400 flex items-center gap-2">
+            <span class="inline-flex gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce" style="animation-delay: 0.2s"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce" style="animation-delay: 0.4s"></span>
+            </span>
+            <span>ForgeAI is crafting your competition strategy...</span>
+          </div>
+        </div>
+      ` : '');
+      scrollAIChatToBottom();
+    }
+
+    function scrollAIChatToBottom() {
+      const container = document.getElementById('ai-chat-messages-box');
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    }
+
+    function sendQuickPrompt(promptText) {
+      const input = document.getElementById('ai-chat-input');
+      if (input) {
+        input.value = promptText;
+        document.getElementById('ai-chat-input-form').dispatchEvent(new Event('submit', { cancelable: true }));
+      }
+    }
+
+    async function handleAIChatSubmit(e) {
+      e.preventDefault();
+      if (isAIGenerating) return;
+
+      const input = document.getElementById('ai-chat-input');
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      input.value = '';
+      chatHistory.push({ role: 'user', content: userText });
+      isAIGenerating = true;
+      updateAIChatDisplay();
+
+      const events = window.TF_STORE.getEvents();
+      const targetEvent = events.find(ev => ev.id === currentChatEventId);
+
+      try {
+        const reply = await window.TF_AI.askHackathonQuery(targetEvent, userText, chatHistory);
+        chatHistory.push({ role: 'assistant', content: reply });
+      } catch (err) {
+        console.error("AI chat error:", err);
+        chatHistory.push({ role: 'assistant', content: `⚠️ Sorry, I encountered an issue analyzing that request. Here's a tip: Focus on building a lightweight MVP with Supabase and React to demonstrate a fast working prototype!` });
+      } finally {
+        isAIGenerating = false;
+        updateAIChatDisplay();
+      }
+    }
+
+    function clearAIChatHistory() {
+      chatHistory = [];
+      const events = window.TF_STORE.getEvents();
+      const targetEvent = events.find(e => e.id === currentChatEventId);
+      const greeting = targetEvent
+        ? `Chat cleared! What questions do you have about **${targetEvent.title}**?`
+        : `Chat cleared! What hackathon question can I help you with today?`;
+      chatHistory.push({ role: 'assistant', content: greeting });
+      updateAIChatDisplay();
+    }
+
+    function formatMarkdown(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/### (.*?)\n/g, '<h4 class="font-bold text-indigo-300 text-xs mt-2 mb-1">$1</h4>')
+        .replace(/## (.*?)\n/g, '<h3 class="font-bold text-white text-sm mt-2.5 mb-1">$1</h3>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em class="text-slate-300">$1</em>')
+        .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono text-[11px]">$1</code>')
+        .replace(/^\* (.*?)$/gm, '<li class="ml-4 list-disc text-slate-300 text-xs my-0.5">$1</li>')
+        .replace(/^- (.*?)$/gm, '<li class="ml-4 list-disc text-slate-300 text-xs my-0.5">$1</li>')
+        .replace(/\n\n/g, '<div class="h-2"></div>')
+        .replace(/\n/g, '<br>');
     }
 
     function openAddEventModal() {
