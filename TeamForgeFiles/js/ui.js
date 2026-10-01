@@ -246,7 +246,7 @@ class TeamForgeUI {
             <a href="events.html" class="hover:text-indigo-400">Hackathons</a>
             <a href="settings.html" class="hover:text-indigo-400">Settings</a>
           </div>
-          <div>Powered by Supabase & OpenRouter AI</div>
+          <div>Powered by Jaidev & Bhagavath with ❤️</div>
         </div>
       </footer>
     `;
