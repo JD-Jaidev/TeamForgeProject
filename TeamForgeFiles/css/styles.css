@@ -346,3 +346,17 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   color: #818cf8;
   border-bottom: 2px solid #6366f1;
 }
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, #6773ff 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #81ff78 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
