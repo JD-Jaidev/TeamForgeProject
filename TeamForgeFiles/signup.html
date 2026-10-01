@@ -139,6 +139,12 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
+      // If user is already logged in, redirect straight to discover page
+      if (window.TF_AUTH && window.TF_AUTH.isLoggedIn()) {
+        window.location.replace('discover.html');
+        return;
+      }
+
       if (window.TF_STORE && typeof window.TF_STORE.syncCloudPeers === 'function') {
         await window.TF_STORE.syncCloudPeers();
       }
