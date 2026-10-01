@@ -65,8 +65,8 @@
 
       <!-- CTA Buttons -->
       <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-        <a href="signup.html" class="btn-gradient w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-base shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 group">
-          <span>Find Teammates Now</span>
+        <a id="hero-cta-btn" href="signup.html" class="btn-gradient w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-base shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 group">
+          <span id="hero-cta-text">Find Teammates Now</span>
           <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </a>
         <a href="ai-match.html" class="glass-card w-full sm:w-auto px-7 py-3.5 rounded-xl font-semibold text-base text-slate-200 hover:text-white border border-white/10 hover:border-indigo-500/40 flex items-center justify-center gap-2">
@@ -77,19 +77,19 @@
 
       <!-- Quick Platform Stats -->
       <div class="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        <div class="glass-card p-4 rounded-2xl text-center">
+        <div class="glass-card p-4 rounded-2xl text-center flex flex-col items-center justify-center">
           <div class="font-heading text-2xl sm:text-3xl font-black text-indigo-400">SkillSync</div>
           <div class="text-xs text-slate-400 font-medium mt-1">SkillSync Match skills. Build teams.</div>
         </div>
-        <div class="glass-card p-4 rounded-2xl text-center">
+        <div class="glass-card p-4 rounded-2xl text-center flex flex-col items-center justify-center">
           <div class="font-heading text-2xl sm:text-3xl font-black text-cyan-400">BuildHub</div>
           <div class="text-xs text-slate-400 font-medium mt-1">Ideas meet builders.</div>
         </div>
-        <div class="glass-card p-4 rounded-2xl text-center">
+        <div class="glass-card p-4 rounded-2xl text-center flex flex-col items-center justify-center">
           <div class="font-heading text-2xl sm:text-3xl font-black text-amber-400">CodeLink</div>
           <div class="text-xs text-slate-400 font-medium mt-1">Connect. Collaborate. Create.</div>
         </div>
-        <div class="glass-card p-4 rounded-2xl text-center">
+        <div class="glass-card p-4 rounded-2xl text-center flex flex-col items-center justify-center">
           <div class="font-heading text-2xl sm:text-3xl font-black text-emerald-400">HackFlow</div>
           <div class="text-xs text-slate-400 font-medium mt-1">Discover. Build. Compete.</div>
         </div>
@@ -234,8 +234,8 @@
           Join thousands of university engineers, designers, and innovators building the next generation of products today.
         </p>
         <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="signup.html" class="btn-gradient px-8 py-3.5 rounded-xl font-bold text-base shadow-xl">
-            Create Free Account
+          <a id="bottom-cta-btn" href="signup.html" class="btn-gradient px-8 py-3.5 rounded-xl font-bold text-base shadow-xl">
+            <span id="bottom-cta-text">Create Free Account</span>
           </a>
           <a href="discover.html" class="glass-card px-8 py-3.5 rounded-xl font-semibold text-slate-300 hover:text-white border border-white/10">
             Browse Student Directory
@@ -261,6 +261,22 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       window.TF_UI.initPage('home');
+
+      // If already logged in, adapt CTA buttons to point directly to Discover Peers
+      if (window.TF_AUTH && window.TF_AUTH.isLoggedIn()) {
+        const heroCta = document.getElementById('hero-cta-btn');
+        if (heroCta) {
+          heroCta.href = 'discover.html';
+          const heroText = document.getElementById('hero-cta-text');
+          if (heroText) heroText.textContent = 'Discover Peers & Teams';
+        }
+        const bottomCta = document.getElementById('bottom-cta-btn');
+        if (bottomCta) {
+          bottomCta.href = 'discover.html';
+          const bottomText = document.getElementById('bottom-cta-text');
+          if (bottomText) bottomText.textContent = 'Discover Peers & Teams';
+        }
+      }
 
       // Demo Live Analyze Button Handler
       const demoBtn = document.getElementById('demo-analyze-btn');
