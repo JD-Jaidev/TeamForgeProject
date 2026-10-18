@@ -58,16 +58,23 @@ class TeamForgeState {
     if (!backdrop) {
       backdrop = document.createElement('div');
       backdrop.id = 'global-modal-backdrop';
-      backdrop.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity';
+      backdrop.className = 'fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md transition-opacity';
       document.body.appendChild(backdrop);
     }
     backdrop.innerHTML = `
-      <div class="glass-panel w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 border border-white/10 relative shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-        <button class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center" onclick="window.TF_STATE.closeModal()">✕</button>
+      <div id="global-modal-dialog" class="glass-panel w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 relative shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <button class="absolute top-3.5 right-3.5 w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer" onclick="window.TF_STATE.closeModal()">✕</button>
         ${htmlContent}
       </div>
     `;
     backdrop.style.display = 'flex';
+
+    // Click outside to close
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) {
+        this.closeModal();
+      }
+    };
   }
 
   closeModal() {

@@ -25,60 +25,60 @@
     <main class="flex-1 p-4 lg:p-8 space-y-8 min-w-0">
       
       <!-- Welcome User Hero Banner -->
-      <div id="user-banner" class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
-        <div class="flex items-center gap-4">
-          <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff&bold=true&size=128" alt="Avatar" class="w-16 h-16 rounded-2xl object-cover ring-2 ring-indigo-500/50 shadow-lg">
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 id="user-name" class="font-heading text-2xl sm:text-3xl font-black text-white"></h1>
+      <div id="user-banner" class="glass-panel p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-white/10 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6 shadow-xl">
+        <div class="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
+          <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff&bold=true&size=128" alt="Avatar" class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl object-cover ring-2 ring-indigo-500/50 shadow-lg shrink-0">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 id="user-name" class="font-heading text-xl sm:text-3xl font-black text-white truncate"></h1>
               <span id="user-role-badge" class="badge-lead px-2.5 py-0.5 rounded-full text-xs font-semibold"></span>
             </div>
-            <p id="user-college" class="text-xs text-slate-400 mt-1"></p>
-            <div class="flex items-center gap-4 mt-2 text-xs font-mono">
-              <span class="text-amber-400 flex items-center gap-1 font-bold">
+            <p id="user-college" class="text-xs text-slate-400 mt-0.5 truncate"></p>
+            <div class="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs font-mono">
+              <span class="text-amber-400 flex items-center gap-1 font-bold whitespace-nowrap">
                 ★ <span id="user-rating">5.0</span> (<span id="user-reviews-count">0</span> reviews)
               </span>
-              <span class="text-indigo-300 flex items-center gap-1">
+              <span class="text-indigo-300 flex items-center gap-1 whitespace-nowrap">
                 ⚡ <span id="user-credits">0</span> Credits
               </span>
-              <span class="text-emerald-400 flex items-center gap-1">
+              <span class="text-emerald-400 flex items-center gap-1 whitespace-nowrap">
                 ● Available (<span id="user-availability"></span>)
               </span>
             </div>
           </div>
         </div>
 
-        <div class="flex items-center gap-3 shrink-0">
-          <a href="create-team.html" class="btn-gradient px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-indigo-600/30">
+        <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto shrink-0 pt-2 sm:pt-0">
+          <a href="create-team.html" class="btn-gradient flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-600/30">
             <span>+ Create Team</span>
           </a>
-          <a href="ai-match.html" class="glass-card px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-200 hover:text-white border border-white/10 hover:border-cyan-500/40 flex items-center gap-1.5">
+          <a href="ai-match.html" class="glass-card flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-200 hover:text-white border border-white/10 hover:border-cyan-500/40 flex items-center justify-center gap-1.5">
             <span class="text-cyan-400">✨</span> AI Match
           </a>
         </div>
       </div>
 
       <!-- Quick Platform Stats Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-1">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/5 space-y-1">
           <div class="text-xs text-slate-400 font-medium">My Active Teams</div>
-          <div id="stat-active-teams" class="text-2xl font-black text-white font-heading">0</div>
-          <div class="text-[11px] text-indigo-400">Core Team Membership</div>
+          <div id="stat-active-teams" class="text-xl sm:text-2xl font-black text-white font-heading">0</div>
+          <div class="text-[10px] sm:text-[11px] text-indigo-400">Core Team Membership</div>
         </div>
-        <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-1">
+        <div class="glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/5 space-y-1">
           <div class="text-xs text-slate-400 font-medium">Guest Contributions</div>
-          <div id="stat-guest-teams" class="text-2xl font-black text-cyan-400 font-heading">0</div>
-          <div class="text-[11px] text-cyan-300">Specialist Collaborations</div>
+          <div id="stat-guest-teams" class="text-xl sm:text-2xl font-black text-cyan-400 font-heading">0</div>
+          <div class="text-[10px] sm:text-[11px] text-cyan-300">Specialist Collaborations</div>
         </div>
-        <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-1">
+        <div class="glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/5 space-y-1">
           <div class="text-xs text-slate-400 font-medium">Pending Requests</div>
-          <div id="stat-pending-requests" class="text-2xl font-black text-amber-400 font-heading">0</div>
-          <div class="text-[11px] text-amber-300">Join & Specialist Inquiries</div>
+          <div id="stat-pending-requests" class="text-xl sm:text-2xl font-black text-amber-400 font-heading">0</div>
+          <div class="text-[10px] sm:text-[11px] text-amber-300">Join & Specialist Inquiries</div>
         </div>
-        <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-1">
+        <div class="glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/5 space-y-1">
           <div class="text-xs text-slate-400 font-medium">Reputation Credits</div>
-          <div id="stat-credits" class="text-2xl font-black text-emerald-400 font-heading">0</div>
-          <div class="text-[11px] text-emerald-300">Top 5% Student Rank</div>
+          <div id="stat-credits" class="text-xl sm:text-2xl font-black text-emerald-400 font-heading">0</div>
+          <div class="text-[10px] sm:text-[11px] text-emerald-300">Top 5% Student Rank</div>
         </div>
       </div>
 

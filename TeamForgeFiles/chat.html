@@ -47,30 +47,39 @@
     <main class="flex-1 glass-panel rounded-3xl border border-white/10 flex flex-col overflow-hidden shadow-2xl relative">
       
       <!-- Chat Header -->
-      <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-slate-900/60 backdrop-blur-md">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center font-bold text-white shadow-lg">
-            ⚡
+      <div class="px-3.5 sm:px-6 py-3.5 sm:py-4 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/60 backdrop-blur-md">
+        <div class="flex items-center justify-between gap-3 min-w-0">
+          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center font-bold text-white shadow-lg shrink-0">
+              ⚡
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <h1 id="active-channel-name" class="font-heading font-bold text-sm sm:text-base text-white truncate"></h1>
+                <span id="active-channel-domain" class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-indigo-300 hidden sm:inline"></span>
+              </div>
+              <div class="flex items-center gap-2 sm:gap-3 text-xs text-slate-400 mt-0.5">
+                <span class="flex items-center gap-1.5 text-emerald-400 whitespace-nowrap">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span id="online-count" class="text-[11px] sm:text-xs">Loading members...</span>
+                </span>
+                <span>•</span>
+                <a id="view-workspace-link" href="#" class="text-indigo-400 hover:underline text-[11px] sm:text-xs whitespace-nowrap">Workspace →</a>
+              </div>
+            </div>
           </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 id="active-channel-name" class="font-heading font-bold text-base text-white"></h1>
-              <span id="active-channel-domain" class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-indigo-300"></span>
-            </div>
-            <div class="flex items-center gap-3 text-xs text-slate-400">
-              <span class="flex items-center gap-1.5 text-emerald-400">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                <span id="online-count">Loading members...</span>
-              </span>
-              <span>•</span>
-              <a id="view-workspace-link" href="#" class="text-indigo-400 hover:underline">View Workspace →</a>
-            </div>
+
+          <!-- Mobile Channel Selector Dropdown -->
+          <div class="md:hidden shrink-0">
+            <select id="mobile-channel-select" aria-label="Select Team Channel" class="glass-input px-2.5 py-1.5 rounded-xl text-xs font-semibold" onchange="switchChannel(this.value)">
+              <!-- Dynamically populated -->
+            </select>
           </div>
         </div>
 
         <!-- AI Generator Action Button -->
-        <div class="relative" id="ai-generator-container">
-          <button id="ai-generator-menu-btn" type="button" class="btn-gradient px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-600/30 transition-transform active:scale-95 cursor-pointer">
+        <div class="relative shrink-0" id="ai-generator-container">
+          <button id="ai-generator-menu-btn" type="button" class="btn-gradient w-full sm:w-auto px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition-transform active:scale-95 cursor-pointer">
             <span>✨ AI Idea Generator</span>
             <svg id="ai-generator-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
@@ -219,28 +228,42 @@
 
     function renderChannels(teams) {
       const container = document.getElementById('channels-list');
+      const mobileSelect = document.getElementById('mobile-channel-select');
+
       if (teams.length === 0) {
-        container.innerHTML = `<div class="text-xs text-slate-500 italic p-2">No teams joined yet.</div>`;
+        if (container) container.innerHTML = `<div class="text-xs text-slate-500 italic p-2">No teams joined yet.</div>`;
+        if (mobileSelect) mobileSelect.innerHTML = `<option value="">No teams</option>`;
         return;
       }
 
-      container.innerHTML = teams.map(t => {
-        const isActive = t.id === activeTeamId;
-        return `
-          <button onclick="switchChannel('${t.id}')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors ${isActive ? 'bg-indigo-600/30 text-white border border-indigo-500/40' : 'text-slate-300 hover:bg-white/5 hover:text-white'}">
-            <span class="truncate"># ${t.name}</span>
-            ${isActive ? '<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>' : ''}
-          </button>
-        `;
-      }).join('');
+      if (container) {
+        container.innerHTML = teams.map(t => {
+          const isActive = t.id === activeTeamId;
+          return `
+            <button onclick="switchChannel('${t.id}')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${isActive ? 'bg-indigo-600/30 text-white border border-indigo-500/40' : 'text-slate-300 hover:bg-white/5 hover:text-white'}">
+              <span class="truncate"># ${t.name}</span>
+              ${isActive ? '<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>' : ''}
+            </button>
+          `;
+        }).join('');
+      }
+
+      if (mobileSelect) {
+        mobileSelect.innerHTML = teams.map(t => `
+          <option value="${t.id}" ${t.id === activeTeamId ? 'selected' : ''}># ${t.name}</option>
+        `).join('');
+      }
     }
 
     function switchChannel(teamId) {
       activeTeamId = teamId;
+      const mobileSelect = document.getElementById('mobile-channel-select');
+      if (mobileSelect && mobileSelect.value !== teamId) {
+        mobileSelect.value = teamId;
+      }
       const user = window.TF_AUTH.getCurrentUser();
       const allTeams = window.TF_STORE.getTeams();
       const userTeams = allTeams.filter(t => t.members.some(m => m.userId === user.id) || (t.guests && t.guests.some(g => g.userId === user.id)));
-      
       renderChannels(userTeams);
       renderChat();
     }

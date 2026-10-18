@@ -42,85 +42,88 @@
   <div id="teamforge-navbar"></div>
 
   <!-- Hero Section -->
-  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24">
-    <div class="text-center max-w-4xl mx-auto space-y-6">
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-14 pb-20 sm:pb-24">
+    <div class="text-center max-w-4xl mx-auto space-y-6 flex flex-col items-center">
       <!-- Announcement Pill -->
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card border border-indigo-500/30 text-xs font-semibold text-indigo-300">
-        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-        <span>TeamForge AI 2.0 is Live</span>
-        <span class="text-slate-500">•</span>
-        <span class="text-slate-300">Intelligent Team Formation & Hackathon Matching</span>
+      <div class="flex justify-center w-full">
+        <div class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full glass-card border border-indigo-500/30 text-[11px] sm:text-xs font-semibold text-indigo-300 max-w-full text-center">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0"></span>
+          <span class="shrink-0">TeamForge AI 2.0</span>
+          <span class="text-slate-500 hidden sm:inline">•</span>
+          <span class="text-slate-300 hidden sm:inline">Intelligent Team Formation & Hackathon Matching</span>
+          <span class="text-slate-300 sm:hidden">Intelligent Matching</span>
+        </div>
       </div>
 
       <!-- Main Headline -->
-      <h1 class="font-heading font-black text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.1]">
-        Build the <span class="text-gradient-primary">right team.</span><br>
-        Build the <span class="text-gradient-cyan">right idea.</span>
+      <h1 class="hero-headline font-heading font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.15] text-center mx-auto w-full">
+        <span>Build the </span><span class="text-gradient-primary">right team.</span><br>
+        <span>Build the </span><span class="text-gradient-cyan">right idea.</span>
       </h1>
 
       <!-- Subtitle -->
-      <p class="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+      <p class="text-sm sm:text-lg md:text-xl text-slate-400 max-w-2xl mx-auto text-center leading-relaxed px-2">
         The premier student collaboration hub for hackathons, engineering competitions, and startup projects. Powered by AI skill-gap matching, real-time workspaces, and verified reputation credits.
       </p>
 
       <!-- CTA Buttons -->
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-        <a id="hero-cta-btn" href="signup.html" class="btn-gradient w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-base shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 group">
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 max-w-sm sm:max-w-none mx-auto w-full">
+        <a id="hero-cta-btn" href="signup.html" class="btn-gradient w-full sm:w-auto px-7 py-3 rounded-xl font-bold text-sm sm:text-base shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 group">
           <span id="hero-cta-text">Find Teammates Now</span>
           <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </a>
-        <a href="ai-match.html" class="glass-card w-full sm:w-auto px-7 py-3.5 rounded-xl font-semibold text-base text-slate-200 hover:text-white border border-white/10 hover:border-indigo-500/40 flex items-center justify-center gap-2">
+        <a href="ai-match.html" class="glass-card w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-sm sm:text-base text-slate-200 hover:text-white border border-white/10 hover:border-indigo-500/40 flex items-center justify-center gap-2">
           <span class="text-cyan-400">✨</span>
           <span>Try AI Match Studio</span>
         </a>
       </div>
 
       <!-- Quick Platform Stats -->
-      <div class="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        <div class="glass-card p-4 rounded-2xl text-center flex flex-col items-center justify-center">
-          <div class="font-heading text-2xl sm:text-3xl font-black text-indigo-400">SkillSync</div>
-          <div class="text-xs text-slate-400 font-medium mt-1">SkillSync Match skills. Build teams.</div>
+      <div class="pt-8 sm:pt-12 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
+        <div class="glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col items-center justify-center">
+          <div class="font-heading text-xl sm:text-3xl font-black text-indigo-400">2,400+</div>
+          <div class="text-[11px] sm:text-xs text-slate-400 font-medium mt-1">Active Student Builders</div>
         </div>
-        <div class="glass-card p-4 rounded-2xl text-center flex flex-col items-center justify-center">
-          <div class="font-heading text-2xl sm:text-3xl font-black text-cyan-400">BuildHub</div>
-          <div class="text-xs text-slate-400 font-medium mt-1">Ideas meet builders.</div>
+        <div class="glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col items-center justify-center">
+          <div class="font-heading text-xl sm:text-3xl font-black text-cyan-400">98.4%</div>
+          <div class="text-[11px] sm:text-xs text-slate-400 font-medium mt-1">AI Skill-Gap Accuracy</div>
         </div>
-        <div class="glass-card p-4 rounded-2xl text-center flex flex-col items-center justify-center">
-          <div class="font-heading text-2xl sm:text-3xl font-black text-amber-400">CodeLink</div>
-          <div class="text-xs text-slate-400 font-medium mt-1">Connect. Collaborate. Create.</div>
+        <div class="glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col items-center justify-center">
+          <div class="font-heading text-xl sm:text-3xl font-black text-amber-400">420+</div>
+          <div class="text-[11px] sm:text-xs text-slate-400 font-medium mt-1">Hackathons Won</div>
         </div>
-        <div class="glass-card p-4 rounded-2xl text-center flex flex-col items-center justify-center">
-          <div class="font-heading text-2xl sm:text-3xl font-black text-emerald-400">HackFlow</div>
-          <div class="text-xs text-slate-400 font-medium mt-1">Discover. Build. Compete.</div>
+        <div class="glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col items-center justify-center">
+          <div class="font-heading text-xl sm:text-3xl font-black text-emerald-400">100%</div>
+          <div class="text-[11px] sm:text-xs text-slate-400 font-medium mt-1">Verified Peer Reviews</div>
         </div>
       </div>
     </div>
 
     <!-- Live Interactive AI Teaser Widget -->
-    <div class="mt-20 glass-panel rounded-3xl p-6 sm:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+    <div class="mt-12 sm:mt-20 glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
       <div class="absolute top-0 right-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
-        <div class="space-y-4 max-w-xl">
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8">
+        <div class="space-y-4 max-w-xl w-full">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-mono font-medium">
             <span>⚡ Interactive Live Demonstration</span>
           </div>
-          <h2 class="font-heading text-2xl sm:text-4xl font-extrabold text-white">
+          <h2 class="font-heading text-xl sm:text-3xl lg:text-4xl font-extrabold text-white">
             See how TeamForge AI matches the ideal squad in seconds
           </h2>
-          <p class="text-slate-400 text-sm sm:text-base">
+          <p class="text-slate-400 text-xs sm:text-sm md:text-base leading-relaxed">
             Type any project concept or hackathon prompt. Our AI instantly extracts required tech stacks, identifies complementary peers, and details transparent matching rationale.
           </p>
 
           <!-- Input Demo -->
           <div class="space-y-2 pt-2">
-            <div class="flex gap-2">
-              <input id="demo-prompt-input" type="text" value="Build an AI-powered healthcare chatbot with real-time vitals sync and WebGL 3D UI" class="glass-input flex-1 px-4 py-3 rounded-xl text-sm border-white/10 placeholder-slate-500">
-              <button id="demo-analyze-btn" class="btn-gradient px-5 py-3 rounded-xl font-bold text-sm shrink-0 flex items-center gap-2">
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="demo-prompt-input" type="text" value="Build an AI-powered healthcare chatbot with real-time vitals sync and WebGL 3D UI" class="glass-input flex-1 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm border-white/10 placeholder-slate-500">
+              <button id="demo-analyze-btn" class="btn-gradient w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm shrink-0 flex items-center justify-center gap-2 cursor-pointer">
                 <span>✨ Analyze</span>
               </button>
             </div>
-            <div class="flex flex-wrap gap-2 text-xs text-slate-400">
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-slate-400 pt-1">
               <span>Try:</span>
               <button onclick="document.getElementById('demo-prompt-input').value='Autonomous drone vision pipeline for precision agriculture'; document.getElementById('demo-analyze-btn').click();" class="text-indigo-400 hover:underline">AgriVision Drone</button>
               <span>•</span>
@@ -130,7 +133,7 @@
         </div>
 
         <!-- Live Result Card -->
-        <div id="demo-results-card" class="w-full lg:w-[460px] glass-card p-6 rounded-2xl border border-indigo-500/30 bg-slate-900/80 space-y-4">
+        <div id="demo-results-card" class="w-full lg:w-[460px] glass-card p-4 sm:p-6 rounded-2xl border border-indigo-500/30 bg-slate-900/80 space-y-4">
           <div class="flex items-center justify-between border-b border-white/5 pb-3">
             <div class="flex items-center gap-2">
               <div class="w-7 h-7 rounded-lg bg-indigo-600/30 text-indigo-300 flex items-center justify-center text-xs">✨</div>
