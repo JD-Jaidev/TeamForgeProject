@@ -160,7 +160,7 @@
         studentId = currentUser.id;
       }
 
-      activeStudent = window.TF_STORE.getStudentById(studentId || 'usr_alex_01');
+      activeStudent = studentId ? window.TF_STORE.getStudentById(studentId) : (window.TF_STORE.getStudents()[0] || null);
       if (!activeStudent) {
         window.location.href = 'discover.html';
         return;

@@ -119,8 +119,8 @@ class TeamForgeUI {
               </div>
             </div>
           ` : `
-            <a href="login.html" class="text-xs sm:text-sm font-medium text-slate-300 hover:text-white px-2 sm:px-3 py-1.5 whitespace-nowrap">Sign In</a>
-            <a href="signup.html" class="btn-gradient text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 rounded-xl whitespace-nowrap shadow-md">Get Started</a>
+            <a href="login.html" class="inline-flex items-center justify-center text-center text-xs sm:text-sm font-medium text-slate-300 hover:text-white px-2 sm:px-3 py-1.5 whitespace-nowrap">Sign In</a>
+            <a href="signup.html" class="btn-gradient inline-flex items-center justify-center text-center text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 rounded-xl whitespace-nowrap shadow-md">Get Started</a>
           `}
         </div>
       </header>
@@ -167,8 +167,8 @@ class TeamForgeUI {
             <div class="glass-card p-3 rounded-2xl border border-white/10 text-center space-y-2">
               <div class="text-xs text-slate-300 font-medium">Join Student Collaboration Hub</div>
               <div class="grid grid-cols-2 gap-2">
-                <a href="login.html" class="glass-card py-1.5 rounded-lg text-xs font-medium text-slate-200 text-center">Sign In</a>
-                <a href="signup.html" class="btn-gradient py-1.5 rounded-lg text-xs font-bold text-center">Sign Up</a>
+                <a href="login.html" class="glass-card py-1.5 rounded-lg text-xs font-medium text-slate-200 text-center inline-flex items-center justify-center">Sign In</a>
+                <a href="signup.html" class="btn-gradient py-1.5 rounded-lg text-xs font-bold text-center inline-flex items-center justify-center">Sign Up</a>
               </div>
             </div>
           `}

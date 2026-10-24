@@ -74,8 +74,16 @@ const INITIAL_EVENTS = [
 
 const INITIAL_NOTIFICATIONS = [];
 
+const FAKE_PROFILE_IDS = [
+  'usr_alex_01', 'usr_aarav_02', 'usr_sneha_03', 'usr_rohan_04',
+  'usr_ananya_05', 'usr_vikram_06', 'usr_meera_07', 'usr_karthik_08',
+  'usr_pooja_09', 'usr_aditya_10', 'usr_divya_11'
+];
+
 class TeamForgeStore {
   constructor() {
+    this.GLOBAL_REGISTRY_ID = 'ff808181a09d98f701a0ba86f516487b';
+    this.PEER_CHANNEL = 'teamforge_peers_sync_net_v1';
     this.init();
   }
 
@@ -122,12 +130,10 @@ class TeamForgeStore {
       }
     }
 
-    // Clean up any old mock/example profiles or example.com emails
+    // Clean up any fake or example.com profiles
     existingStudents = existingStudents.filter(s => 
       s && 
-      s.id !== 'usr_alex_01' && 
-      s.id !== 'usr_jaidev_01' && 
-      s.id !== 'usr_bhagavth_01' && 
+      !FAKE_PROFILE_IDS.includes(s.id) &&
       (!s.email || !s.email.toLowerCase().includes('example.com'))
     );
 
@@ -162,7 +168,9 @@ class TeamForgeStore {
 
   getStudents() {
     const raw = JSON.parse(localStorage.getItem('tf_students') || '[]');
-    return raw.map(s => this.normalizeStudent(s)).filter(s => s && (!s.email || !s.email.toLowerCase().includes('example.com')));
+    return raw
+      .map(s => this.normalizeStudent(s))
+      .filter(s => s && !FAKE_PROFILE_IDS.includes(s.id) && (!s.email || !s.email.toLowerCase().includes('example.com')));
   }
 
   getStudentById(id) {
@@ -172,7 +180,7 @@ class TeamForgeStore {
 
   saveStudent(student) {
     const normalized = this.normalizeStudent(student);
-    if (!normalized) return student;
+    if (!normalized || FAKE_PROFILE_IDS.includes(normalized.id)) return student;
 
     const list = this.getStudents();
     const index = list.findIndex(s => s.id === normalized.id || (s.email && normalized.email && s.email.toLowerCase() === normalized.email.toLowerCase()) || (s.name && normalized.name && s.name.toLowerCase() === normalized.name.toLowerCase()));
@@ -214,13 +222,11 @@ class TeamForgeStore {
     return true;
   }
 
-  PEER_CHANNEL = 'teamforge_peers_sync_net_v1';
-
   initRealtimePeerSync() {
     if (this._realtimeInitialized) return;
     this._realtimeInitialized = true;
 
-    // 1. Initial background fetch from peer channel
+    // 1. Initial background fetch from peer channel & persistent registry
     this.syncCloudPeers();
 
     // 2. Realtime SSE stream for instant cross-device updates
@@ -232,7 +238,7 @@ class TeamForgeStore {
             const msg = JSON.parse(event.data);
             if (msg && msg.message) {
               const payload = JSON.parse(msg.message);
-              if (payload.action === 'upsert_student' && payload.student) {
+              if (payload.action === 'upsert_student' && payload.student && !FAKE_PROFILE_IDS.includes(payload.student.id)) {
                 this.ingestCloudStudent(payload.student);
               } else if (payload.action === 'delete_student' && payload.studentId) {
                 let list = this.getStudents().filter(s => s.id !== payload.studentId);
@@ -250,10 +256,11 @@ class TeamForgeStore {
 
   ingestCloudStudent(cloudStudent) {
     if (!cloudStudent || (!cloudStudent.name && !cloudStudent.email)) return;
+    if (FAKE_PROFILE_IDS.includes(cloudStudent.id)) return;
     if (cloudStudent.email && cloudStudent.email.toLowerCase().includes('example.com')) return;
 
     const normalized = this.normalizeStudent(cloudStudent);
-    if (!normalized) return;
+    if (!normalized || FAKE_PROFILE_IDS.includes(normalized.id)) return;
 
     const localStudents = this.getStudents();
     const idx = localStudents.findIndex(s => 
@@ -274,10 +281,42 @@ class TeamForgeStore {
 
   async broadcastStudentToCloud(student) {
     const normalized = this.normalizeStudent(student);
-    if (!normalized) return;
+    if (!normalized || FAKE_PROFILE_IDS.includes(normalized.id)) return;
     if (normalized.email && normalized.email.toLowerCase().includes('example.com')) return;
 
     try {
+      // 1. Save to persistent global registry
+      const res = await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, { cache: 'no-store' });
+      let currentStudents = [];
+      if (res.ok) {
+        const doc = await res.json();
+        if (doc && doc.data && Array.isArray(doc.data.students)) {
+          currentStudents = doc.data.students.filter(s => s && !FAKE_PROFILE_IDS.includes(s.id));
+        }
+      }
+      const idx = currentStudents.findIndex(s => s.id === normalized.id || (s.email && normalized.email && s.email.toLowerCase() === normalized.email.toLowerCase()));
+      if (idx >= 0) {
+        currentStudents[idx] = normalized;
+      } else {
+        currentStudents.push(normalized);
+      }
+      await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'teamforge_global_peer_registry',
+          data: {
+            students: currentStudents,
+            updatedAt: new Date().toISOString()
+          }
+        })
+      });
+    } catch (err) {
+      console.warn("Persistent registry broadcast error:", err);
+    }
+
+    try {
+      // 2. Broadcast via realtime SSE channel
       await fetch(`https://ntfy.sh/${this.PEER_CHANNEL}`, {
         method: 'POST',
         headers: { 'Title': 'Peer Sync', 'Tags': 'user' },
@@ -293,6 +332,27 @@ class TeamForgeStore {
   }
 
   async deleteStudentFromCloud(id) {
+    try {
+      const res = await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, { cache: 'no-store' });
+      if (res.ok) {
+        const doc = await res.json();
+        if (doc && doc.data && Array.isArray(doc.data.students)) {
+          const filtered = doc.data.students.filter(s => s && s.id !== id);
+          await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: 'teamforge_global_peer_registry',
+              data: {
+                students: filtered,
+                updatedAt: new Date().toISOString()
+              }
+            })
+          });
+        }
+      }
+    } catch (e) {}
+
     try {
       await fetch(`https://ntfy.sh/${this.PEER_CHANNEL}`, {
         method: 'POST',
@@ -310,17 +370,83 @@ class TeamForgeStore {
 
   async syncCloudPeers() {
     let syncedCount = 0;
+
     try {
-      const res = await fetch(`https://ntfy.sh/${this.PEER_CHANNEL}/json?poll=1&since=all`, { cache: 'no-store' });
+      // 1. Fetch from persistent global cloud registry
+      const res = await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, { cache: 'no-store' });
+      let cloudStudents = [];
       if (res.ok) {
-        const text = await res.text();
+        const doc = await res.json();
+        if (doc && doc.data && Array.isArray(doc.data.students)) {
+          cloudStudents = doc.data.students.filter(s => s && !FAKE_PROFILE_IDS.includes(s.id));
+        }
+      }
+
+      // Merge remote students into local storage
+      const localStudents = this.getStudents().filter(s => s && !FAKE_PROFILE_IDS.includes(s.id));
+      let localUpdated = false;
+
+      cloudStudents.forEach(cs => {
+        const normalized = this.normalizeStudent(cs);
+        if (!normalized || FAKE_PROFILE_IDS.includes(normalized.id)) return;
+        const idx = localStudents.findIndex(s => 
+          s.id === normalized.id || 
+          (s.email && normalized.email && s.email.toLowerCase() === normalized.email.toLowerCase())
+        );
+        if (idx >= 0) {
+          localStudents[idx] = this.normalizeStudent({ ...localStudents[idx], ...normalized });
+        } else {
+          localStudents.push(normalized);
+          localUpdated = true;
+          syncedCount++;
+        }
+      });
+
+      // Also ensure any real local members (such as registered students on this device) are added to cloud registry
+      let registryNeedsUpdate = false;
+      const mergedCloud = [...cloudStudents];
+      localStudents.forEach(ls => {
+        if (!ls || FAKE_PROFILE_IDS.includes(ls.id)) return;
+        const exists = mergedCloud.some(cs => cs.id === ls.id || (cs.email && ls.email && cs.email.toLowerCase() === ls.email.toLowerCase()));
+        if (!exists) {
+          mergedCloud.push(ls);
+          registryNeedsUpdate = true;
+        }
+      });
+
+      if (localUpdated) {
+        localStorage.setItem('tf_students', JSON.stringify(localStudents));
+      }
+
+      if (registryNeedsUpdate) {
+        await fetch(`https://api.restful-api.dev/objects/${this.GLOBAL_REGISTRY_ID}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'teamforge_global_peer_registry',
+            data: {
+              students: mergedCloud,
+              updatedAt: new Date().toISOString()
+            }
+          })
+        });
+      }
+    } catch (err) {
+      console.warn("Sync cloud peers error:", err);
+    }
+
+    // 2. Realtime stream poll from ntfy
+    try {
+      const ntfyRes = await fetch(`https://ntfy.sh/${this.PEER_CHANNEL}/json?poll=1&since=all`, { cache: 'no-store' });
+      if (ntfyRes.ok) {
+        const text = await ntfyRes.text();
         const lines = text.trim().split('\n').filter(Boolean);
         lines.forEach(line => {
           try {
             const data = JSON.parse(line);
             if (data && data.message) {
               const payload = JSON.parse(data.message);
-              if (payload.action === 'upsert_student' && payload.student) {
+              if (payload.action === 'upsert_student' && payload.student && !FAKE_PROFILE_IDS.includes(payload.student.id)) {
                 this.ingestCloudStudent(payload.student);
                 syncedCount++;
               } else if (payload.action === 'delete_student' && payload.studentId) {
@@ -331,15 +457,7 @@ class TeamForgeStore {
           } catch (e) {}
         });
       }
-    } catch (err) {
-      console.warn("Sync cloud peers error:", err);
-    }
-
-    // Publish current logged-in user so peers discover it immediately
-    const currentUser = window.TF_AUTH ? window.TF_AUTH.getCurrentUser() : null;
-    if (currentUser && (!currentUser.email || !currentUser.email.toLowerCase().includes('example.com'))) {
-      this.broadcastStudentToCloud(currentUser);
-    }
+    } catch (err) {}
 
     window.dispatchEvent(new CustomEvent('tf_students_updated'));
     return syncedCount;
